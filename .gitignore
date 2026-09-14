@@ -1,0 +1,75 @@
+# 基于 GitHub UnrealEngine.gitignore，并针对本项目调整。
+# https://github.com/github/gitignore/blob/main/UnrealEngine.gitignore
+
+# 本机 IDE 和自动生成的工程文件
+.vs/
+.idea/
+.vscode/
+*.sln
+*.suo
+*.opensdf
+*.sdf
+*.VC.db
+*.VC.opendb
+*.xcodeproj/
+*.xcworkspace/
+.vsconfig
+
+# 编译产物
+*.slo
+*.lo
+*.o
+*.gch
+*.pch
+*.so
+*.dylib
+*.dll
+*.mod
+*.lai
+*.la
+*.a
+*.lib
+*.exe
+*.out
+*.app
+*.ipa
+# 不全局忽略 *.obj，避免误排除以后导入的 OBJ 模型源文件。
+
+# UE 自动生成内容；保留 Content、Config、Source 和项目描述文件
+/Binaries/
+/Intermediate/
+/Saved/
+/DerivedDataCache/
+/Plugins/**/Binaries/
+/Plugins/**/Intermediate/
+*_BuiltData.uasset
+
+# 构建输出，保留平台图标和包排除清单
+/Build/*
+!/Build/*/
+/Build/*/**
+!/Build/*/PakBlacklist*.txt
+!/Build/**/*.ico
+
+# 本机配置、个人工作区及助手连接设置
+/.codex/
+/Config/User*.ini
+/Content/Developers/
+/Content/Collections/
+.env
+.env.*
+!.env.example
+
+# Python 缓存与系统临时文件
+__pycache__/
+*.py[cod]
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.tmp
+*.bak
+*.log
+
+# 不忽略 Content/__ExternalActors__ 和 Content/__ExternalObjects__：
+# 它们可能包含旧地图依赖的真实资源，必须随地图一起版本管理。
+# 不忽略 SourceArt 图片：美术源文件也是项目源内容。

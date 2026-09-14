@@ -1,0 +1,17 @@
+# 文本采用统一换行，避免不同工作环境产生整文件差异。
+* text=auto
+*.md text eol=lf whitespace=-blank-at-eol
+*.ini text eol=lf
+*.uproject text eol=lf
+*.uplugin text eol=lf
+*.json text eol=lf
+*.py text eol=lf
+*.h text eol=lf
+*.cpp text eol=lf
+*.cs text eol=lf
+.gitignore text eol=lf
+.gitattributes text eol=lf
+
+# UE 资产是二进制文件，使用 Git LFS，禁止按普通文本合并。
+*.uasset filter=lfs diff=lfs merge=lfs -text
+*.umap filter=lfs diff=lfs merge=lfs -text
