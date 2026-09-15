@@ -73,3 +73,8 @@ Desktop.ini
 # 不忽略 Content/__ExternalActors__ 和 Content/__ExternalObjects__：
 # 它们可能包含旧地图依赖的真实资源，必须随地图一起版本管理。
 # 不忽略 SourceArt 图片：美术源文件也是项目源内容。
+
+# Visual Studio / Unreal 工程迁移生成文件
+*.slnx
+/Backup/
+/UpgradeLog*.htm
