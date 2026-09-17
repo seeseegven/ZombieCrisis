@@ -29,8 +29,6 @@ public:
 		return PlayerLevel;
 	}
 
-	UFUNCTION(BlueprintPure, Category = "ZC|Weapon")
-	bool
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

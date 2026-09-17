@@ -9,6 +9,11 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"//中间管理者，硬件和character之间的桥梁
 #include "InputActionValue.h"//传入的输入值
+#include "DrawDebugHelpers.h"//画调试射线
+#include "Engine/World.h"//获取游戏时间和执行射线检测
+#include "GameFramework/DamageType.h"//ue基础伤害类型
+#include "Kismet/GameplayStatics.h"//applyPointDamage
+#include "Logging/LogMacros.h"
 
 // Sets default values
 AZCPlayerCharacter::AZCPlayerCharacter()
@@ -24,6 +29,7 @@ AZCPlayerCharacter::AZCPlayerCharacter()
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
 
 	GetCharacterMovement()->MaxWalkSpeed = 300.0f;
+
 }
 
 
@@ -58,6 +64,15 @@ void AZCPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 			this,
 			&AZCPlayerCharacter::Move);
 	}
+
+	if (EnhancedInput && FireAction) {
+		EnhancedInput->BindAction(
+			FireAction,
+			ETriggerEvent::Triggered,
+			this,
+			&AZCPlayerCharacter::FirePistol
+		);
+	}
 }
 
 void AZCPlayerCharacter::Move(const FInputActionValue& Value)
@@ -66,5 +81,67 @@ void AZCPlayerCharacter::Move(const FInputActionValue& Value)
 
 	AddMovementInput(FVector(1.0f, 0.0f, 0.0f), Input.X);
 	AddMovementInput(FVector(0.0f, -1.0f, 0.0f), Input.Y);
+}
+
+void AZCPlayerCharacter::FirePistol()
+{
+	UWorld* World = GetWorld();
+
+	if (!World) return;
+
+	const float CurrentTime = World->GetTimeSeconds();
+
+	if (CurrentTime < NextPistolFireTime) return;
+	const float SafeShotPerSecond = FMath::Max(0.01f, PistolShotPerSecond);
+	const float FireInterval = 1.f / SafeShotPerSecond;
+	NextPistolFireTime = CurrentTime + FireInterval;
+	FVector AimDirection = GetActorForwardVector();
+	AimDirection.Z = 0.0f;
+	if (!AimDirection.Normalize()) return;
+	FVector TraceStart = GetActorLocation();
+	FVector TraceEnd = TraceStart + AimDirection * PistolRange;
+
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);//忽略自己
+
+	FHitResult HitResult;
+	const bool bWeaponHit = World->LineTraceSingleByChannel(
+		HitResult,
+		TraceStart,
+		TraceEnd,
+		ECC_Visibility,
+		QueryParams
+	);
+
+	const FVector DebugEnd = bWeaponHit ? HitResult.ImpactPoint : TraceEnd;
+	const FColor DebugColor = bWeaponHit ? FColor::Green : FColor::Red;
+	DrawDebugLine(
+		World,
+		TraceStart,
+		TraceEnd,
+		DebugColor,
+		false,
+		1.0f,
+		0,
+		1.f
+	);
+	
+	if (!bWeaponHit || !HitResult.GetActor()) return;
+	UE_LOG(
+		LogTemp,
+		Display,
+		TEXT("击中了: %s"),
+		*GetNameSafe(HitResult.GetActor())
+	);
+
+	UGameplayStatics::ApplyPointDamage(
+		HitResult.GetActor(),
+		PistolDamage,
+		AimDirection,
+		HitResult,
+		GetController(),
+		this,
+		UDamageType::StaticClass()
+	);
 }
 
