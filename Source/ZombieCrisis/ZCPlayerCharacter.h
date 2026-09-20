@@ -39,7 +39,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly,
 		Category = "ZC|Weapon|Pistol", meta = (ClampMin = "0.01"))
-	float PistolShotPerSecond = 4.0f;
+	float PistolShotPerSecond = 20.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly,
 		Category = "ZC|Weapon|Pistol", meta = (ClampMin = "0.0"))

@@ -85,6 +85,7 @@ void AZCPlayerCharacter::Move(const FInputActionValue& Value)
 
 void AZCPlayerCharacter::FirePistol()
 {
+	UE_LOG(LogTemp, Warning, TEXT("收到射击输入"));
 	UWorld* World = GetWorld();
 
 	if (!World) return;
