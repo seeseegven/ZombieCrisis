@@ -95,6 +95,8 @@ float AZCPlayerCharacter::TakeDamage(float DamageAmount, const FDamageEvent& Dam
 	//MaxHealth
 //);
 	BloodPercent = CurrentHealth / MaxHealth;
+	OnHealthChanged.Broadcast(BloodPercent);
+
 	UE_LOG(
 		LogTemp,
 		Display,

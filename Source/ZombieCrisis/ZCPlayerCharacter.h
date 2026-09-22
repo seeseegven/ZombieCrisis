@@ -10,6 +10,12 @@ class UInputAction;
 class UInputMappingContext;
 struct FInputActionValue;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
+	FOnHealthChangedSignature,
+	float,
+	BloodPercent
+);
+
 UCLASS()
 class ZOMBIECRISIS_API AZCPlayerCharacter : public ACharacter
 {
@@ -18,6 +24,9 @@ class ZOMBIECRISIS_API AZCPlayerCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AZCPlayerCharacter();
+
+	UPROPERTY(BlueprintAssignable, Category = "Health")
+	FOnHealthChangedSignature OnHealthChanged;
 
 protected:
 
