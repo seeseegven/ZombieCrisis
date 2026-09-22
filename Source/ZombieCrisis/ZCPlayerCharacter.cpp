@@ -19,7 +19,7 @@
 AZCPlayerCharacter::AZCPlayerCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = false;
@@ -29,7 +29,8 @@ AZCPlayerCharacter::AZCPlayerCharacter()
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
 
 	GetCharacterMovement()->MaxWalkSpeed = 300.0f;
-
+	MaxHealth = 100.f;
+	CurrentHealth = MaxHealth;
 }
 
 
@@ -73,6 +74,53 @@ void AZCPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 			&AZCPlayerCharacter::FirePistol
 		);
 	}
+}
+
+float AZCPlayerCharacter::TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	const float ActualDamage = Super::TakeDamage(
+		DamageAmount,
+		DamageEvent,
+		EventInstigator,
+		DamageCauser
+	);
+
+	if (ActualDamage <= 0.f) {
+		return 0.f;
+	}
+	CurrentHealth =
+		//FMath::Clamp(
+		CurrentHealth - ActualDamage;
+	//0.0f,
+	//MaxHealth
+//);
+	BloodPercent = CurrentHealth / MaxHealth;
+	UE_LOG(
+		LogTemp,
+		Display,
+		TEXT("%s took %.1f damage. Health: %.1f / %.1f"),
+		*GetNameSafe(this),
+		ActualDamage,
+		CurrentHealth,
+		MaxHealth
+	);
+
+	if (IsDead()) {
+		UE_LOG(
+			LogTemp,
+			Display,
+			TEXT("%s died. KillerController: %s"),
+			*GetNameSafe(this),
+			*GetNameSafe(EventInstigator)
+		);
+		Destroy();
+	}
+	return ActualDamage;
+
+}
+
+bool AZCPlayerCharacter::IsDead() {
+	return CurrentHealth <= 0;
 }
 
 void AZCPlayerCharacter::Move(const FInputActionValue& Value)

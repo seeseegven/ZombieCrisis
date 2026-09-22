@@ -14,6 +14,13 @@ class ZOMBIECRISIS_API AZCZombieCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AZCZombieCharacter();
+	
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BasicSettings|HP")
+	float MaxHealth = 100.f;
+	float CurrentHealth=0.f;
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
 	bool IsDead();
 	virtual float TakeDamage(
 		float DamageAmount,
@@ -22,11 +29,31 @@ public:
 		AActor* DamageCauser
 	) override;
 
-protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BasicSettings|HP")
-	float MaxHealth = 100.f;
-	float CurrentHealth=0.f;
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	UFUNCTION(BlueprintCallable, Category = "Attack")
+	void StartAttack(AActor* NewTarget);
 
+	UFUNCTION(BlueprintCallable, Category = "Attack")
+	void StopAttack(AActor* LeavingTarget);
+
+	UFUNCTION(BlueprintCallable, Category = "Attack")
+	void AttackHitCheck();
+
+	UFUNCTION(BlueprintCallable, Category = "Attack")
+	void AttackFinished();
+
+	void RestartAttackIfStillInRange();
+
+	UFUNCTION(BlueprintImplementableEvent)//仅声明，实现由蓝图来
+	void BP_PlayAttackAnimation();
+
+	UPROPERTY()
+	TObjectPtr<AActor> AttackTarget = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Attack")
+	float AttackDamage = 10.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	bool bIsAnimationStarted = false;
+	bool bIsAttacking = false;
+	bool bIsTargetInAttackRange = false;
 };

@@ -1,7 +1,11 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "ZCZombieCharacter.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/DamageType.h"
+#include "TimerManager.h"
+#include "ZCPlayerCharacter.h"
 
 // Sets default values
 AZCZombieCharacter::AZCZombieCharacter()
@@ -58,6 +62,74 @@ float AZCZombieCharacter::TakeDamage(float DamageAmount, const FDamageEvent& Dam
 	return ActualDamage;
 }
 
+void AZCZombieCharacter::StartAttack(AActor* NewTarget)
+{
+	if (!IsValid(NewTarget)) return;
+
+	AZCPlayerCharacter*Player = Cast<AZCPlayerCharacter>(NewTarget);
+	AttackTarget = Player;
+	bIsTargetInAttackRange = true;
+
+	if (bIsAttacking) return;
+
+	bIsAttacking = true;
+	bIsAnimationStarted = true;
+	BP_PlayAttackAnimation();
+}
+
+void AZCZombieCharacter::StopAttack(AActor* LeavingTarget)
+{
+	if (LeavingTarget != AttackTarget) return;
+
+	bIsAttacking = false;
+	bIsTargetInAttackRange = false;
+	AttackTarget = nullptr;
+}
+
+void AZCZombieCharacter::AttackHitCheck()
+{
+	if (!IsValid(AttackTarget)) return;
+
+	if (!bIsAttacking || !bIsTargetInAttackRange) {
+		AttackTarget = nullptr;
+		return;
+	}
+
+	UGameplayStatics::ApplyDamage(
+		AttackTarget,
+		AttackDamage,
+		GetController(),
+		this,
+		UDamageType::StaticClass() 
+	);
+
+}
+
+void AZCZombieCharacter::AttackFinished()
+{
+	bIsAttacking = false;
+	bIsAnimationStarted = false;
+
+	if (!bIsTargetInAttackRange || !IsValid(AttackTarget)) {
+		AttackTarget = nullptr;
+		return;
+	}
+
+	GetWorldTimerManager().SetTimerForNextTick(
+		this,
+		&AZCZombieCharacter::RestartAttackIfStillInRange
+	);
+}
+
+void AZCZombieCharacter::RestartAttackIfStillInRange()
+{
+	if (!bIsTargetInAttackRange || !IsValid(AttackTarget)) {
+		AttackTarget = nullptr;
+		return;
+	}
+
+	StartAttack(AttackTarget);
+}
 // Called when the game starts or when spawned
 void AZCZombieCharacter::BeginPlay()
 {

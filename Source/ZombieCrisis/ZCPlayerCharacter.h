@@ -49,8 +49,25 @@ protected:
 		Category = "ZC|Weapon|Pistol")
 	float PistolTraceHeight = 50.0f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly,
+		Category = "BasicSettings|HP")
+	float MaxHealth = 100.0f;
+
+	float CurrentHealth;
+
+	UPROPERTY(BlueprintReadOnly)
+	float BloodPercent;
+
+	virtual float TakeDamage(
+		float DamageAmount,
+		const FDamageEvent& DamageEvent,
+		AController* EventInstigator,
+		AActor* DamageCauser
+	) override;
+
 private:
 	void Move(const FInputActionValue& Value);
 	void FirePistol();
+	bool IsDead();
 	float NextPistolFireTime = 0.0f;
 };
