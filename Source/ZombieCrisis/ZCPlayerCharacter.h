@@ -8,6 +8,7 @@
 
 class UInputAction;
 class UInputMappingContext;
+class UZCDeathAnimationComponent;
 struct FInputActionValue;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
@@ -67,6 +68,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	float BloodPercent;
 
+	UPROPERTY(VisibleAnywhere, Category = "ZC|Death")
+	TObjectPtr<UZCDeathAnimationComponent> DeathAnimationComponent;
+
 	virtual float TakeDamage(
 		float DamageAmount,
 		const FDamageEvent& DamageEvent,
@@ -78,5 +82,6 @@ private:
 	void Move(const FInputActionValue& Value);
 	void FirePistol();
 	bool IsDead();
+	bool bIsDead = false;
 	float NextPistolFireTime = 0.0f;
 };

@@ -3,6 +3,8 @@
 
 #include "ZCPlayerCharacter.h"
 
+#include "ZCDeathAnimationComponent.h"
+
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
@@ -29,6 +31,9 @@ AZCPlayerCharacter::AZCPlayerCharacter()
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
 
 	GetCharacterMovement()->MaxWalkSpeed = 300.0f;
+	DeathAnimationComponent = CreateDefaultSubobject<UZCDeathAnimationComponent>(
+		TEXT("DeathAnimationComponent")
+	);
 	MaxHealth = 100.f;
 	CurrentHealth = MaxHealth;
 }
@@ -78,6 +83,10 @@ void AZCPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 float AZCPlayerCharacter::TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	if (bIsDead) {
+		return 0.0f;
+	}
+
 	const float ActualDamage = Super::TakeDamage(
 		DamageAmount,
 		DamageEvent,
@@ -108,6 +117,7 @@ float AZCPlayerCharacter::TakeDamage(float DamageAmount, const FDamageEvent& Dam
 	);
 
 	if (IsDead()) {
+		bIsDead = true;
 		UE_LOG(
 			LogTemp,
 			Display,
@@ -115,7 +125,7 @@ float AZCPlayerCharacter::TakeDamage(float DamageAmount, const FDamageEvent& Dam
 			*GetNameSafe(this),
 			*GetNameSafe(EventInstigator)
 		);
-		Destroy();
+		DeathAnimationComponent->PlayDeathAnimation();
 	}
 	return ActualDamage;
 
@@ -195,4 +205,3 @@ void AZCPlayerCharacter::FirePistol()
 		UDamageType::StaticClass()
 	);
 }
-

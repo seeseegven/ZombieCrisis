@@ -2,6 +2,7 @@
 
 
 #include "ZCZombieCharacter.h"
+#include "ZCDeathAnimationComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/DamageType.h"
 #include "TimerManager.h"
@@ -12,6 +13,9 @@ AZCZombieCharacter::AZCZombieCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
+	DeathAnimationComponent = CreateDefaultSubobject<UZCDeathAnimationComponent>(
+		TEXT("DeathAnimationComponent")
+	);
 
 }
 
@@ -22,6 +26,10 @@ bool AZCZombieCharacter::IsDead()
 
 float AZCZombieCharacter::TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	if (bIsDead) {
+		return 0.0f;
+	}
+
 	const float ActualDamage = Super::TakeDamage(
 		DamageAmount,
 		DamageEvent,
@@ -50,6 +58,11 @@ float AZCZombieCharacter::TakeDamage(float DamageAmount, const FDamageEvent& Dam
 	);
 
 	if (IsDead()) {
+		bIsDead = true;
+		bIsAttacking = false;
+		bIsAnimationStarted = false;
+		bIsTargetInAttackRange = false;
+		AttackTarget = nullptr;
 		UE_LOG(
 			LogTemp,
 			Display,
@@ -57,7 +70,7 @@ float AZCZombieCharacter::TakeDamage(float DamageAmount, const FDamageEvent& Dam
 			*GetNameSafe(this),
 			*GetNameSafe(EventInstigator)
 		);
-		Destroy();
+		DeathAnimationComponent->PlayDeathAnimation();
 	}
 	return ActualDamage;
 }
@@ -136,5 +149,4 @@ void AZCZombieCharacter::BeginPlay()
 	Super::BeginPlay();
 	CurrentHealth = MaxHealth;
 }
-
 

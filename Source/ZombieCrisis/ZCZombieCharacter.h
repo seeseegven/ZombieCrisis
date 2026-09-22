@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "ZCZombieCharacter.generated.h"
 
+class UZCDeathAnimationComponent;
+
 UCLASS()
 class ZOMBIECRISIS_API AZCZombieCharacter : public ACharacter
 {
@@ -19,6 +21,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BasicSettings|HP")
 	float MaxHealth = 100.f;
 	float CurrentHealth=0.f;
+
+	UPROPERTY(VisibleAnywhere, Category = "ZC|Death")
+	TObjectPtr<UZCDeathAnimationComponent> DeathAnimationComponent;
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	bool IsDead();
@@ -56,4 +61,5 @@ protected:
 	bool bIsAnimationStarted = false;
 	bool bIsAttacking = false;
 	bool bIsTargetInAttackRange = false;
+	bool bIsDead = false;
 };
