@@ -77,7 +77,8 @@ protected:
 		AController* EventInstigator,
 		AActor* DamageCauser
 	) override;
-
+	UPROPERTY(EditDefaultsOnly, Category = "ZC|Speed")
+	float RotateRateY = 180.f;
 private:
 	void Move(const FInputActionValue& Value);
 	void FirePistol();

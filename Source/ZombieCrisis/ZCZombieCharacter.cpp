@@ -7,6 +7,7 @@
 #include "GameFramework/DamageType.h"
 #include "TimerManager.h"
 #include "ZCPlayerCharacter.h"
+#include "ZCGameMode.h"
 
 // Sets default values
 AZCZombieCharacter::AZCZombieCharacter()
@@ -70,6 +71,8 @@ float AZCZombieCharacter::TakeDamage(float DamageAmount, const FDamageEvent& Dam
 			*GetNameSafe(this),
 			*GetNameSafe(EventInstigator)
 		);
+		AZCGameMode* ZCGameMode = Cast<AZCGameMode>(UGameplayStatics::GetGameMode(this));
+		if (IsValid(ZCGameMode)) ZCGameMode->HandleEnemyKilled(this, EventInstigator);
 		DeathAnimationComponent->PlayDeathAnimation();
 	}
 	return ActualDamage;

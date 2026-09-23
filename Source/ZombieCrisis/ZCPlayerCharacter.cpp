@@ -28,7 +28,7 @@ AZCPlayerCharacter::AZCPlayerCharacter()
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, RotateRateY, 0.0f);
 
 	GetCharacterMovement()->MaxWalkSpeed = 300.0f;
 	DeathAnimationComponent = CreateDefaultSubobject<UZCDeathAnimationComponent>(
