@@ -21,6 +21,7 @@ void AZCGameMode::HandleEnemyKilled(AActor* KilledEnemy, AController* KillerCont
 			Warning,
 			TEXT("转换失败，无法添加分数")
 			);
+		return;
 	}
 	ZCGameState->AddScore(ZombieKilledScore);
 	UE_LOG(

@@ -89,7 +89,7 @@ void UZCDeathAnimationComponent::TickComponent(
 		TargetRelativeRotation.Quaternion(),
 		SmoothAlpha
 	);
-
+	VisualRoot->SetRelativeRotation(NewRotation);
 	if (LinearAlpha >= 1.0f) {
 		VisualRoot->SetRelativeRotation(TargetRelativeRotation);
 		SetComponentTickEnabled(false);
