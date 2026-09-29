@@ -9,7 +9,7 @@ public class ZombieCrisis : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore",
-		"EnhancedInput"});
+		"EnhancedInput", "UMG"});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

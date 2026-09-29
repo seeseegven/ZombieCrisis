@@ -8,6 +8,9 @@
 #include "TimerManager.h"
 #include "ZCPlayerCharacter.h"
 #include "ZCGameMode.h"
+#include "UZCFloatingScore.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
+#include "GameFramework/PlayerController.h"
 
 // Sets default values
 AZCZombieCharacter::AZCZombieCharacter()
@@ -18,6 +21,30 @@ AZCZombieCharacter::AZCZombieCharacter()
 		TEXT("DeathAnimationComponent")
 	);
 
+}
+
+void AZCZombieCharacter::HandleElimination()
+{
+	if (!IsValid(ScoreWidgetClass)) return;
+
+	UUZCFloatingScore* ScoreUI = CreateWidget<UUZCFloatingScore>(GetWorld(), ScoreWidgetClass);
+	if (!IsValid(ScoreUI)) return;
+	ScoreUI->InitialWorldLocation = GetActorLocation() + FVector(0.f, 0.f, 120.f);
+	FVector2D ScreenLocation;
+	APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
+	if (!PC) return;
+	if (!UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(
+		PC,
+		ScoreUI->InitialWorldLocation,
+		ScreenLocation,
+		false
+	)) {
+		return;
+	}
+	ScoreUI->AddToViewport();
+	ScoreUI->SetDesiredSizeInViewport(FVector2D(20.f, 40.f));
+	ScoreUI->SetAlignmentInViewport(FVector2D(0.5f, 1.f));
+	ScoreUI->StartFlight(ScreenLocation);
 }
 
 bool AZCZombieCharacter::IsDead()
@@ -73,6 +100,7 @@ float AZCZombieCharacter::TakeDamage(float DamageAmount, const FDamageEvent& Dam
 		);
 		AZCGameMode* ZCGameMode = Cast<AZCGameMode>(UGameplayStatics::GetGameMode(this));
 		if (IsValid(ZCGameMode)) ZCGameMode->HandleEnemyKilled(this, EventInstigator);
+		HandleElimination();
 		DeathAnimationComponent->PlayDeathAnimation();
 	}
 	return ActualDamage;

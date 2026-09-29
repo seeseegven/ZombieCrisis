@@ -7,6 +7,7 @@
 #include "ZCZombieCharacter.generated.h"
 
 class UZCDeathAnimationComponent;
+class UUZCFloatingScore;
 
 UCLASS()
 class ZOMBIECRISIS_API AZCZombieCharacter : public ACharacter
@@ -16,12 +17,13 @@ class ZOMBIECRISIS_API AZCZombieCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AZCZombieCharacter();
-	
+	void HandleElimination();
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BasicSettings|HP")
 	float MaxHealth = 100.f;
 	float CurrentHealth=0.f;
-
+	UPROPERTY(EditDefaultsOnly, Category = "ScoreWidget")
+	TSubclassOf<UUZCFloatingScore> ScoreWidgetClass;
 	UPROPERTY(VisibleAnywhere, Category = "ZC|Death")
 	TObjectPtr<UZCDeathAnimationComponent> DeathAnimationComponent;
 	// Called when the game starts or when spawned
@@ -62,4 +64,5 @@ protected:
 	bool bIsAttacking = false;
 	bool bIsTargetInAttackRange = false;
 	bool bIsDead = false;
+	
 };
