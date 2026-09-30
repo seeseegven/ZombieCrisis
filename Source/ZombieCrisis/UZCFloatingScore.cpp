@@ -3,11 +3,13 @@
 
 #include "UZCFloatingScore.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
+#include "Components/TextBlock.h"
 
 void UUZCFloatingScore::StartFlight(const FVector2D& InStartScreenPosition)
 {
 	StartScreenPosition = InStartScreenPosition;
 	ElapsedTime = 0.f;
+	FlightDuration = 1.5f;
 	bIsFlying = true;
 
 	SetPositionInViewport(StartScreenPosition, false);
@@ -20,14 +22,15 @@ void UUZCFloatingScore::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 	if (!bIsFlying) return;
 
 	ElapsedTime += InDeltaTime;
-	const float Alpha = FMath::Clamp(ElapsedTime / FlightDuration, 0.f, 1.f);
+	const float Alpha = FMath::Clamp(ElapsedTime / (FlightDuration), 0.f, 1.f);
 
 	const FVector2D ViewportSize = UWidgetLayoutLibrary::GetViewportWidgetGeometry(this).GetLocalSize();
 	const FVector2D TargetScreenPosition{ ViewportSize.X * 0.5,-ViewportSize.Y };
 	const FVector2D CurrentPosition = FMath::Lerp(StartScreenPosition, TargetScreenPosition, Alpha);
 
+
 	SetPositionInViewport(CurrentPosition, false);
-	if (Alpha >= 0.1f) {
+	if (Alpha >= 0.5f) {
 		bIsFlying = false;
 		RemoveFromParent();
 	}

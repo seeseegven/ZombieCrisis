@@ -42,8 +42,8 @@ void AZCZombieCharacter::HandleElimination()
 		return;
 	}
 	ScoreUI->AddToViewport();
-	ScoreUI->SetDesiredSizeInViewport(FVector2D(20.f, 40.f));
-	ScoreUI->SetAlignmentInViewport(FVector2D(0.5f, 1.f));
+	//ScoreUI->SetDesiredSizeInViewport(FVector2D(20.f, 40.f));
+	//ScoreUI->SetAlignmentInViewport(FVector2D(0.5f, 1.f));
 	ScoreUI->StartFlight(ScreenLocation);
 }
 

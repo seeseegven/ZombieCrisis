@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "UZCFloatingScore.generated.h"
 
+class UTextBlock;
 /**
  * 
  */
@@ -19,6 +20,9 @@ public:
 	void StartFlight(const FVector2D& InStartScreenPosition);
 
 protected:
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> ScoreText = nullptr;
+
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 private:
