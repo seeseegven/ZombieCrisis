@@ -17,6 +17,12 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
 	BloodPercent
 );
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
+	FOnWeaponChangedSignature,
+	FText,
+	NewWeaponName
+);
+
 UCLASS()
 class ZOMBIECRISIS_API AZCPlayerCharacter : public ACharacter
 {
@@ -29,8 +35,10 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Health")
 	FOnHealthChangedSignature OnHealthChanged;
 
-protected:
+	UPROPERTY(BlueprintAssignable, Category = "ZC|Weapon")
+	FOnWeaponChangedSignature OnWeaponChanged;
 
+protected:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 

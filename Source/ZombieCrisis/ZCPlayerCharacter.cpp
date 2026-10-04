@@ -243,6 +243,7 @@ void AZCPlayerCharacter::ChangeWeapons(const FInputActionValue& Value)
 		Direction,
 		CurrentWeaponIndex+1
 	);
+	OnWeaponChanged.Broadcast(FText::FromName(Weapons[CurrentWeaponIndex]));
 	ApplyNewWeapon();
 }
 
