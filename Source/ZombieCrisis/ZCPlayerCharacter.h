@@ -43,6 +43,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ZC|Input")
 	TObjectPtr<UInputAction> FireAction;
 
+	UPROPERTY(EditDefaultsOnly, Category = "ZC|Input")
+	TObjectPtr<UInputAction> ChangeWeaponAction;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, 
 		Category = "ZC|Weapon|Pistol", meta = (ClampMin = "0.0"))
 	int32 PistolDamage = 20;
@@ -79,10 +82,26 @@ protected:
 	) override;
 	UPROPERTY(EditDefaultsOnly, Category = "ZC|Speed")
 	float RotateRateY = 180.f;
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "ZC|Weapon")
+	void BP_ApplyNewWeaponVisual(TSubclassOf<AActor> VisualClass,
+		const FTransform& RelativeTransform);
+
+	virtual void BeginPlay() override;
+
+	UPROPERTY(EditAnywhere, Category = "ZC|Weapon")
+	TObjectPtr<UDataTable> WeaponDefinitionTable;
+
+	UPROPERTY(EditAnywhere, Category = "ZC|Weapon")
+	TArray<FName> Weapons;
+
 private:
 	void Move(const FInputActionValue& Value);
 	void FirePistol();
+	void ChangeWeapons(const FInputActionValue & Value);
+	void ApplyNewWeapon();
 	bool IsDead();
 	bool bIsDead = false;
 	float NextPistolFireTime = 0.0f;
+	int32 CurrentWeaponIndex = 0;
 };

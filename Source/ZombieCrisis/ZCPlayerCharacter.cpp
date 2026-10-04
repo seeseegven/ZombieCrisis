@@ -16,6 +16,8 @@
 #include "GameFramework/DamageType.h"//ue基础伤害类型
 #include "Kismet/GameplayStatics.h"//applyPointDamage
 #include "Logging/LogMacros.h"
+#include "ZCWeaponTypes.h"
+#include "Engine/DataTable.h"
 
 // Sets default values
 AZCPlayerCharacter::AZCPlayerCharacter()
@@ -24,8 +26,9 @@ AZCPlayerCharacter::AZCPlayerCharacter()
 	PrimaryActorTick.bCanEverTick = false;
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
+	//上面的可以不写，不影响，下面的要写，会影响绕z轴的旋转
+	//意思是是否使用controller的旋转影响角色的旋转
 	bUseControllerRotationYaw = false;
-
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, RotateRateY, 0.0f);
@@ -33,7 +36,7 @@ AZCPlayerCharacter::AZCPlayerCharacter()
 	GetCharacterMovement()->MaxWalkSpeed = 300.0f;
 	DeathAnimationComponent = CreateDefaultSubobject<UZCDeathAnimationComponent>(
 		TEXT("DeathAnimationComponent")
-	);
+	);//创建死亡组件
 	MaxHealth = 100.f;
 	CurrentHealth = MaxHealth;
 }
@@ -52,10 +55,10 @@ void AZCPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 	ULocalPlayer* LocalPlayer = PC->GetLocalPlayer();
 	if (!LocalPlayer) return;
-
+	//获取本地玩家对象
 	UEnhancedInputLocalPlayerSubsystem* InputSubsystem =
 		LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-
+	//获得增强输入系统
 	if (InputSubsystem && PlayerMappingContext) {
 		InputSubsystem->AddMappingContext(PlayerMappingContext, 0);
 	}
@@ -70,13 +73,22 @@ void AZCPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 			this,
 			&AZCPlayerCharacter::Move);
 	}
-
+	//将输入资产(IA)绑定到角色的xx函数，当trigger event时触发。
 	if (EnhancedInput && FireAction) {
 		EnhancedInput->BindAction(
 			FireAction,
 			ETriggerEvent::Triggered,
 			this,
 			&AZCPlayerCharacter::FirePistol
+		);
+	}
+
+	if (IsValid(EnhancedInput) && IsValid(ChangeWeaponAction)) {
+		EnhancedInput->BindAction(
+			ChangeWeaponAction,
+			ETriggerEvent::Started,
+			this,
+			&AZCPlayerCharacter::ChangeWeapons
 		);
 	}
 }
@@ -135,12 +147,19 @@ bool AZCPlayerCharacter::IsDead() {
 	return CurrentHealth <= 0;
 }
 
+void AZCPlayerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	ApplyNewWeapon();
+}
+
 void AZCPlayerCharacter::Move(const FInputActionValue& Value)
 {
 	const FVector2D Input = Value.Get<FVector2D>().GetClampedToMaxSize(1.0f);
-
-	AddMovementInput(FVector(1.0f, 0.0f, 0.0f), Input.X);
+	//获取最大长度不超过1的向量
+	AddMovementInput(FVector(1.0f, 0.0f, 0.0f), Input.X);//朝x轴方向输入x轴分量的强度
 	AddMovementInput(FVector(0.0f, -1.0f, 0.0f), Input.Y);
+	//合成强度不超过1
 }
 
 void AZCPlayerCharacter::FirePistol()
@@ -204,4 +223,50 @@ void AZCPlayerCharacter::FirePistol()
 		this,
 		UDamageType::StaticClass()
 	);
+}
+
+void AZCPlayerCharacter::ChangeWeapons(const FInputActionValue& Value)
+{
+	if (bIsDead) return;
+	
+	const float Axis = Value.Get<float>();
+
+	int32 Direction = Axis > 0 ? 1 : -1;
+
+	CurrentWeaponIndex = (CurrentWeaponIndex + Direction + Weapons.Num()) 
+										% Weapons.Num();
+
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("切换方向是%d，当前武器为%d"),
+		Direction,
+		CurrentWeaponIndex+1
+	);
+	ApplyNewWeapon();
+}
+
+void AZCPlayerCharacter::ApplyNewWeapon()
+{
+	if (!IsValid(WeaponDefinitionTable) || !Weapons.IsValidIndex(CurrentWeaponIndex)) {
+		UE_LOG(LogTemp, Warning, TEXT("Update Fail"));
+		return;
+	}
+
+	FName CurrentWeaponName = Weapons[CurrentWeaponIndex];
+	const FZCWeaponDefinitionRow* Row = WeaponDefinitionTable->FindRow<FZCWeaponDefinitionRow>(
+		CurrentWeaponName, TEXT("ApplyCurrentWeaponVisual")
+	);
+
+	if (!Row || !Row->VisualClass) {
+		UE_LOG(
+			LogTemp,
+			Warning,
+			TEXT("武器行%s查找配置错误"),
+			*(CurrentWeaponName.ToString())
+		);
+		return;
+	}
+
+	BP_ApplyNewWeaponVisual(Row->VisualClass, Row->VisualRelativeTransform);
 }

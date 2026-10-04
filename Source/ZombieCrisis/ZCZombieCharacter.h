@@ -8,6 +8,7 @@
 
 class UZCDeathAnimationComponent;
 class UUZCFloatingScore;
+class UDataTable;
 
 UCLASS()
 class ZOMBIECRISIS_API AZCZombieCharacter : public ACharacter

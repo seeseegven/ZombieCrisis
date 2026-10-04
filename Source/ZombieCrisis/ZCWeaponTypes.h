@@ -39,6 +39,9 @@ struct FZCWeaponDefinitionRow : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
 	TSubclassOf<AActor> VisualClass;
 
+	UPROPERTY(EditAnywhere, Category = "Weapon")
+	FTransform VisualRelativeTransform = FTransform::Identity;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (ClampMin = "0.0"))
 	float BaseDamage = 10.0f;
 
