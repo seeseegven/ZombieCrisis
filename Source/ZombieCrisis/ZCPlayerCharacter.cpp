@@ -147,6 +147,13 @@ bool AZCPlayerCharacter::IsDead() {
 	return CurrentHealth <= 0;
 }
 
+void AZCPlayerCharacter::ChangeWeaponProperty(const FZCWeaponDefinitionRow& Values)
+{
+	WeaponDamage = Values.BaseDamage;
+	WeaponShotPerSecond = Values.BaseFireRate;
+	DamageRange = Values.BaseRange;
+}
+
 void AZCPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -172,14 +179,15 @@ void AZCPlayerCharacter::FirePistol()
 	const float CurrentTime = World->GetTimeSeconds();
 
 	if (CurrentTime < NextPistolFireTime) return;
-	const float SafeShotPerSecond = FMath::Max(0.01f, PistolShotPerSecond);
+	const float SafeShotPerSecond = FMath::Max(0.01f, WeaponShotPerSecond);
 	const float FireInterval = 1.f / SafeShotPerSecond;
 	NextPistolFireTime = CurrentTime + FireInterval;
 	FVector AimDirection = GetActorForwardVector();
 	AimDirection.Z = 0.0f;
 	if (!AimDirection.Normalize()) return;
+	//BP_PlayMuzzleFlash();
 	FVector TraceStart = GetActorLocation();
-	FVector TraceEnd = TraceStart + AimDirection * PistolRange;
+	FVector TraceEnd = TraceStart + AimDirection * DamageRange;
 
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);//忽略自己
@@ -216,7 +224,7 @@ void AZCPlayerCharacter::FirePistol()
 
 	UGameplayStatics::ApplyPointDamage(
 		HitResult.GetActor(),
-		PistolDamage,
+		WeaponDamage,
 		AimDirection,
 		HitResult,
 		GetController(),
@@ -269,5 +277,6 @@ void AZCPlayerCharacter::ApplyNewWeapon()
 		return;
 	}
 
+	ChangeWeaponProperty(*Row);
 	BP_ApplyNewWeaponVisual(Row->VisualClass, Row->VisualRelativeTransform);
 }

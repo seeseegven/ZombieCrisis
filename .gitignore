@@ -78,3 +78,7 @@ Desktop.ini
 *.slnx
 /Backup/
 /UpgradeLog*.htm
+
+# 本地设计文档、演示截图与编辑器辅助脚本；README 保留在仓库中。
+/Docs/
+/Scripts/Editor/

@@ -54,27 +54,19 @@
 | `Content/ZombieCrisis/Audio`、`FX` | 音效和特效 |
 | `Content/ZombieCrisis/Imported` | 外部素材；按素材包分目录保存 |
 | `Config` | 需要共享的项目配置 |
-| `Docs` | 需求与目录说明 |
-| `Scripts/Editor` | 一次性建图和编辑器验证脚本 |
 
 `TopDown`、`Characters`、`Cursor`、`LevelPrototyping` 等旧目录保留供参考。切换前的开放世界地图保存在 `Content/_Archive/BeforeZombieCrisis`。`Content/__ExternalActors__` 和 `Content/__ExternalObjects__` 中可能有旧地图需要的资源，因此一并提交，不要手动移动或删除。
 
-预留目录使用 `.gitkeep` 保持克隆后的结构。编辑器建图脚本有防止重复创建的检查，正常打开和运行工程不需要执行这些脚本。
+预留目录使用 `.gitkeep` 保持克隆后的结构。
 
 ## 版本管理
 
 - `.uasset`、`.umap` 由 Git LFS 管理；蓝图和地图属于二进制资产。
 - `Saved`、`Intermediate`、`DerivedDataCache`、编译输出与 IDE 临时文件不提交。
+- 本地设计文档、演示截图与编辑器辅助脚本不提交；README 保留用于介绍项目。
 - `.codex` 和 `Config/User*.ini` 属于本机配置，不提交。本机 Android 文件服务凭据保存在被忽略的 `Config/UserEngine.ini`。
 - 修改蓝图或地图后，先在 UE 中保存，再查看 Git 变更并提交。
 - 资产改名和移动应在 UE 内容浏览器中完成，使引用随之更新。
 - 提交信息使用中文，说明本次变更，例如：`实现玩家八方向移动`、`修复倍率升级重复触发`。
 
 忽略规则参考 [GitHub UnrealEngine.gitignore](https://github.com/github/gitignore/blob/main/UnrealEngine.gitignore)，针对本项目保留美术源文件和地图外部资源。LFS 使用方式参考 [GitHub 官方说明](https://docs.github.com/en/repositories/working-with-files/managing-large-files/configuring-git-large-file-storage)。
-
-## 项目文档
-
-- [目录与启动说明](Docs/ZombieCrisis目录与启动说明.md)
-- [玩法参考与第一版需求报告](Docs/僵尸危机3玩法复刻-第一版需求报告.md)
-
-需求报告保留原作调研依据；后续已明确以 UE 学习和逻辑实现为主。尚未核实的伤害、血量和刷怪数值可使用标注清楚的项目参数，逐步调试，不要求先完成原版数值考据。
