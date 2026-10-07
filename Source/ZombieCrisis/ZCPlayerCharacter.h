@@ -11,6 +11,7 @@ class UInputMappingContext;
 class UZCDeathAnimationComponent;
 struct FInputActionValue;
 struct FZCWeaponDefinitionRow;
+class AZCWeaponBasic;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
 	FOnHealthChangedSignature,
@@ -55,18 +56,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "ZC|Input")
 	TObjectPtr<UInputAction> ChangeWeaponAction;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, 
-		Category = "ZC|Weapon", meta = (ClampMin = "0.0"))
-	int32 WeaponDamage;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly,
-		Category = "ZC|Weapon", meta = (ClampMin = "0.01"))
-	float WeaponShotPerSecond;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly,
-		Category = "ZC|Weapon", meta = (ClampMin = "0.0"))
-	float DamageRange;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly,
 		Category = "ZC|Weapon")
 	float DamageTraceHeight = 50.0f;
@@ -106,7 +95,7 @@ protected:
 
 private:
 	void Move(const FInputActionValue& Value);
-	void FirePistol();
+	void FireWeapon();
 	void ChangeWeapons(const FInputActionValue & Value);
 	void ApplyNewWeapon();
 	bool IsDead();
@@ -114,4 +103,5 @@ private:
 	bool bIsDead = false;
 	float NextPistolFireTime = 0.0f;
 	int32 CurrentWeaponIndex = 0;
+	AZCWeaponBasic* CurrentWeapon = nullptr;
 };

@@ -18,6 +18,7 @@
 #include "Logging/LogMacros.h"
 #include "ZCWeaponTypes.h"
 #include "Engine/DataTable.h"
+#include "ZCWeaponBasic.h"
 
 // Sets default values
 AZCPlayerCharacter::AZCPlayerCharacter()
@@ -79,7 +80,7 @@ void AZCPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 			FireAction,
 			ETriggerEvent::Triggered,
 			this,
-			&AZCPlayerCharacter::FirePistol
+			&AZCPlayerCharacter::FireWeapon
 		);
 	}
 
@@ -149,9 +150,8 @@ bool AZCPlayerCharacter::IsDead() {
 
 void AZCPlayerCharacter::ChangeWeaponProperty(const FZCWeaponDefinitionRow& Values)
 {
-	WeaponDamage = Values.BaseDamage;
-	WeaponShotPerSecond = Values.BaseFireRate;
-	DamageRange = Values.BaseRange;
+	if (!IsValid(CurrentWeapon)) return;
+	CurrentWeapon->UpdateProperty(Values);
 }
 
 void AZCPlayerCharacter::BeginPlay()
@@ -169,68 +169,15 @@ void AZCPlayerCharacter::Move(const FInputActionValue& Value)
 	//合成强度不超过1
 }
 
-void AZCPlayerCharacter::FirePistol()
+void AZCPlayerCharacter::FireWeapon()
 {
-	UE_LOG(LogTemp, Warning, TEXT("收到射击输入"));
-	UWorld* World = GetWorld();
-
-	if (!World) return;
-
-	const float CurrentTime = World->GetTimeSeconds();
-
-	if (CurrentTime < NextPistolFireTime) return;
-	const float SafeShotPerSecond = FMath::Max(0.01f, WeaponShotPerSecond);
-	const float FireInterval = 1.f / SafeShotPerSecond;
-	NextPistolFireTime = CurrentTime + FireInterval;
-	FVector AimDirection = GetActorForwardVector();
-	AimDirection.Z = 0.0f;
-	if (!AimDirection.Normalize()) return;
-	//BP_PlayMuzzleFlash();
-	FVector TraceStart = GetActorLocation();
-	FVector TraceEnd = TraceStart + AimDirection * DamageRange;
-
-	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActor(this);//忽略自己
-
-	FHitResult HitResult;
-	const bool bWeaponHit = World->LineTraceSingleByChannel(
-		HitResult,
-		TraceStart,
-		TraceEnd,
-		ECC_Visibility,
-		QueryParams
-	);
-
-	const FVector DebugEnd = bWeaponHit ? HitResult.ImpactPoint : TraceEnd;
-	const FColor DebugColor = bWeaponHit ? FColor::Green : FColor::Red;
-	DrawDebugLine(
-		World,
-		TraceStart,
-		TraceEnd,
-		DebugColor,
-		false,
-		1.0f,
-		0,
-		1.f
-	);
+	if (!IsValid(CurrentWeapon)) {
+		UE_LOG(LogTemp, Warning, TEXT("Error, Nullptr"));
+		return;
+	}
+	CurrentWeapon->WeaponApply();
+	UE_LOG(LogTemp, Warning, TEXT("开始射击"));
 	
-	if (!bWeaponHit || !HitResult.GetActor()) return;
-	UE_LOG(
-		LogTemp,
-		Display,
-		TEXT("击中了: %s"),
-		*GetNameSafe(HitResult.GetActor())
-	);
-
-	UGameplayStatics::ApplyPointDamage(
-		HitResult.GetActor(),
-		WeaponDamage,
-		AimDirection,
-		HitResult,
-		GetController(),
-		this,
-		UDamageType::StaticClass()
-	);
 }
 
 void AZCPlayerCharacter::ChangeWeapons(const FInputActionValue& Value)
@@ -277,6 +224,13 @@ void AZCPlayerCharacter::ApplyNewWeapon()
 		return;
 	}
 
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	CurrentWeapon = GetWorld()->SpawnActor<AZCWeaponBasic>(
+		Row->WeaponClass,
+		Row->VisualRelativeTransform,
+		SpawnParams
+	);
 	ChangeWeaponProperty(*Row);
 	BP_ApplyNewWeaponVisual(Row->VisualClass, Row->VisualRelativeTransform);
 }

@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
 #include "GameFramework/Actor.h"
+#include "ZCWeaponBasic.h"
 #include "ZCWeaponTypes.generated.h"
 
 
@@ -58,6 +59,9 @@ struct FZCWeaponDefinitionRow : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (ClampMin = "0.0"))
 	float BaseSpreadDegrees = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
+	TSubclassOf<AZCWeaponBasic> WeaponClass;
 };
 
 
