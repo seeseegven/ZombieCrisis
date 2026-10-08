@@ -6,6 +6,8 @@
 #include "ZCWeaponBasic.h"
 #include "ZCWeaponGun.generated.h"
 
+
+
 /**
  * 
  */
@@ -17,9 +19,14 @@ public:
 
 protected:
 	int32 WeaponDamage;
+	int32 TraceCount;
 	float BulletDegrees;
 	float DamageRange;
+	float StartDegreeOffset;
+	UPROPERTY()
+	TObjectPtr<UNiagaraSystem> MuzzleFlashSystem = nullptr;
 private:
 	virtual void WeaponApply() override;
 	virtual void UpdateProperty(const FZCWeaponDefinitionRow& Value) override;
+	void DrawTraceEffect();
 };

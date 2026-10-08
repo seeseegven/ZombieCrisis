@@ -4,6 +4,9 @@
 #include "ZCWeaponGun.h"
 #include "ZCWeaponTypes.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/SceneComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 
 void AZCWeaponGun::WeaponApply()
 {
@@ -18,28 +21,90 @@ void AZCWeaponGun::WeaponApply()
 
 	if (CurrentTime < NextPistolFireTime) return;
 	NextPistolFireTime = CurrentTime + ShotInterval;
+
+	TArray<USceneComponent*> SceneComponents;
+	WeaponOwner->GetComponents<USceneComponent>(SceneComponents, true);
+	//获取玩家身上的组件，SceneComponents变量接收结果，true表示递归寻找子actor的组件
+	USceneComponent* MuzzlePoint = nullptr;
+	for (USceneComponent* Component : SceneComponents) {
+		if (IsValid(Component) && Component->GetFName() == TEXT("MuzzlePoint")) {
+			MuzzlePoint = Component;
+			break;
+		}
+	}
+	if (!IsValid(MuzzlePoint)) return;
+
 	FVector AimDirection = WeaponOwner->GetActorForwardVector();
 	AimDirection.Z = 0.0f;
 	if (!AimDirection.Normalize()) return;
 	//BP_PlayMuzzleFlash();
-	FVector TraceStart = WeaponOwner->GetActorLocation();
+	FVector TraceStart = MuzzlePoint->GetComponentLocation();
 	FVector TraceEnd = TraceStart + AimDirection * DamageRange;
 
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);//忽略自己
 	QueryParams.AddIgnoredActor(WeaponOwner);
 
-	FHitResult HitResult;
-	const bool bWeaponHit = World->LineTraceSingleByChannel(
-		HitResult,
-		TraceStart,
-		TraceEnd,
-		ECC_Visibility,
-		QueryParams
-	);
+	if (IsValid(MuzzleFlashSystem)) {
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			World,
+			MuzzleFlashSystem,
+			MuzzlePoint->GetComponentLocation(),
+			MuzzlePoint->GetComponentRotation()
+		);
+	}
 
-	const FVector DebugEnd = bWeaponHit ? HitResult.ImpactPoint : TraceEnd;
-	const FColor DebugColor = bWeaponHit ? FColor::Green : FColor::Red;
+	float EachAngle = -StartDegreeOffset;//每次偏移多少度，初值为开始的偏移角度
+	FVector LineDirection = AimDirection.RotateAngleAxis(EachAngle, FVector::UpVector);
+	for (int32 Index = 0; Index < TraceCount; Index++) {
+		FHitResult HitResult;
+		const bool bWeaponHit = World->LineTraceSingleByChannel(
+			HitResult,
+			TraceStart,
+			TraceEnd,
+			ECC_Visibility,
+			QueryParams
+		);
+
+		const FVector DebugEnd = bWeaponHit ? HitResult.ImpactPoint : TraceEnd;
+		const FColor DebugColor = bWeaponHit ? FColor::Green : FColor::Red;
+
+		if (IsValid(WeaponEffectSystem)) {
+			UNiagaraComponent* Tracer = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+				World,
+				WeaponEffectSystem,
+				MuzzlePoint->GetComponentLocation(),
+				MuzzlePoint->GetComponentRotation(),
+				FVector(1.0, 1.0, 1.0f),
+				true,
+				false,
+				ENCPoolMethod::AutoRelease,
+				false
+			);
+
+			if (IsValid(Tracer)) {
+				TraceEnd = TraceStart + LineDirection * DamageRange;
+				FVector VisualEnd = bWeaponHit ? HitResult.ImpactPoint : TraceEnd;
+				Tracer->SetVariableVec3(FName(TEXT("User.TracerEnd")), VisualEnd);
+				Tracer->Activate(true);
+				EachAngle += BulletDegrees;
+				LineDirection = AimDirection.RotateAngleAxis(EachAngle, FVector::UpVector);
+			}
+			if (bWeaponHit && HitResult.GetActor()) {
+
+				UGameplayStatics::ApplyPointDamage(
+					HitResult.GetActor(),
+					WeaponDamage,
+					AimDirection,
+					HitResult,
+					PC,
+					this,
+					UDamageType::StaticClass()
+				);
+			}
+		}
+	}
+	/*
 	DrawDebugLine(
 		World,
 		TraceStart,
@@ -50,24 +115,8 @@ void AZCWeaponGun::WeaponApply()
 		0,
 		1.f
 	);
-
-	if (!bWeaponHit || !HitResult.GetActor()) return;
-	UE_LOG(
-		LogTemp,
-		Display,
-		TEXT("has hitten: %s"),
-		*GetNameSafe(HitResult.GetActor())
-	);
-
-	UGameplayStatics::ApplyPointDamage(
-		HitResult.GetActor(),
-		WeaponDamage,
-		AimDirection,
-		HitResult,
-		PC,
-		this,
-		UDamageType::StaticClass()
-	);
+	*/
+	
 }
 
 void AZCWeaponGun::UpdateProperty(const FZCWeaponDefinitionRow& Value)
@@ -78,4 +127,8 @@ void AZCWeaponGun::UpdateProperty(const FZCWeaponDefinitionRow& Value)
 	DamageRange = Value.BaseRange;
 	BulletDegrees = Value.BaseSpreadDegrees;
 	NextPistolFireTime = 0.0f;
+	MuzzleFlashSystem = Value.MuzzleFlashSystem;
+	WeaponEffectSystem = Value.WeaponEffectSystem;
+	TraceCount = Value.BaseTraceCount;
+	StartDegreeOffset = Value.StartDegreeOffset;
 }

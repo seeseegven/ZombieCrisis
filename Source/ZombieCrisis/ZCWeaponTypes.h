@@ -6,6 +6,7 @@
 #include "ZCWeaponBasic.h"
 #include "ZCWeaponTypes.generated.h"
 
+class UNiagaraSystem;
 
 /**
  * 一条等级奖励会对武器产生哪种影响。
@@ -58,10 +59,22 @@ struct FZCWeaponDefinitionRow : public FTableRowBase
 	float BaseRange = 1500.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (ClampMin = "0.0"))
-	float BaseSpreadDegrees = 1.0f;
+	float BaseSpreadDegrees = 4.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
+	float StartDegreeOffset = 3.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (ClampMin = "1"))
+	int32 BaseTraceCount = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
 	TSubclassOf<AZCWeaponBasic> WeaponClass;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon|FX")
+	TObjectPtr<UNiagaraSystem> MuzzleFlashSystem = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon|FX")
+	TObjectPtr<UNiagaraSystem> WeaponEffectSystem = nullptr;
 };
 
 
