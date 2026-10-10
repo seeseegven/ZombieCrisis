@@ -99,6 +99,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "ZC|Weapon")
 	TArray<FName> Weapons;
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_PlayHitReactionAnimation();
+
 private:
 	void Move(const FInputActionValue& Value);
 	void FireWeapon();

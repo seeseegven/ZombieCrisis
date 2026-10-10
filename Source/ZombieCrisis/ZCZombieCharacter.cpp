@@ -29,7 +29,7 @@ void AZCZombieCharacter::HandleElimination()
 
 	UUZCFloatingScore* ScoreUI = CreateWidget<UUZCFloatingScore>(GetWorld(), ScoreWidgetClass);
 	if (!IsValid(ScoreUI)) return;
-	ScoreUI->InitialWorldLocation = GetActorLocation() + FVector(0.f, 0.f, 120.f);
+	ScoreUI->InitialWorldLocation = GetActorLocation() + FVector(-40.f, 0.f, 360.f);
 	FVector2D ScreenLocation;
 	APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
 	if (!PC) return;

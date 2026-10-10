@@ -32,8 +32,6 @@ AZCPlayerCharacter::AZCPlayerCharacter()
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, RotateRateY, 0.0f);
-
 	GetCharacterMovement()->MaxWalkSpeed = 300.0f;
 	DeathAnimationComponent = CreateDefaultSubobject<UZCDeathAnimationComponent>(
 		TEXT("DeathAnimationComponent")
@@ -140,6 +138,9 @@ float AZCPlayerCharacter::TakeDamage(float DamageAmount, const FDamageEvent& Dam
 		);
 		DeathAnimationComponent->PlayDeathAnimation();
 	}
+	else {
+		BP_PlayHitReactionAnimation();
+	}
 	return ActualDamage;
 
 }
@@ -157,6 +158,7 @@ void AZCPlayerCharacter::ChangeWeaponProperty(const FZCWeaponDefinitionRow& Valu
 void AZCPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, RotateRateY, 0.0f);
 	ApplyNewWeapon();
 }
 

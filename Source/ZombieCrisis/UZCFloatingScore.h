@@ -23,6 +23,13 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> ScoreText = nullptr;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Time", meta = (ClampMin = "0.02"))
+	float FlyDuration = 1.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Time", meta = (ClampMin = "0.02"))
+	float WaitDuration = 0.25f;
+
+	float TotalDuration;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 private:
@@ -30,4 +37,5 @@ private:
 	float ElapsedTime = 0.f;
 	float FlightDuration = 1.f;
 	bool bIsFlying = false;
+
 };
