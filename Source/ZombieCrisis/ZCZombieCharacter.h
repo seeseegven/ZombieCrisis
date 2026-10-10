@@ -38,21 +38,24 @@ protected:
 	) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Attack")
-	void StartAttack(AActor* NewTarget);
+	void StartAttack(AActor* NewTarget);//开始攻击
 
 	UFUNCTION(BlueprintCallable, Category = "Attack")
-	void StopAttack(AActor* LeavingTarget);
+	void StopAttack(AActor* LeavingTarget);//停止攻击，即判定失效了
 
 	UFUNCTION(BlueprintCallable, Category = "Attack")
-	void AttackHitCheck();
+	void AttackHitCheck();//动画播完后判断是否击中
 
 	UFUNCTION(BlueprintCallable, Category = "Attack")
-	void AttackFinished();
+	void AttackFinished();//角色未离开范围，一次攻击结束，会继续攻击
 
-	void RestartAttackIfStillInRange();
+	void RestartAttackIfStillInRange();//如果离开就退出，否则执行Start Attack函数
 
 	UFUNCTION(BlueprintImplementableEvent)//仅声明，实现由蓝图来
-	void BP_PlayAttackAnimation();
+	void BP_PlayAttackAnimation();//蓝图实现攻击动画
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_PlayHitReactionAnimation();
 
 	UPROPERTY()
 	TObjectPtr<AActor> AttackTarget = nullptr;
@@ -65,5 +68,4 @@ protected:
 	bool bIsAttacking = false;
 	bool bIsTargetInAttackRange = false;
 	bool bIsDead = false;
-	
 };

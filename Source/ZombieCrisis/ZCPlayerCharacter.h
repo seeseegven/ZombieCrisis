@@ -25,6 +25,12 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
 	NewWeaponName
 );
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
+	FOnGetHurtSignature,
+	FText,
+	NewWeaponName
+);
+
 UCLASS()
 class ZOMBIECRISIS_API AZCPlayerCharacter : public ACharacter
 {

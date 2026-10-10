@@ -84,7 +84,6 @@ float AZCZombieCharacter::TakeDamage(float DamageAmount, const FDamageEvent& Dam
 		CurrentHealth,
 		MaxHealth
 	);
-
 	if (IsDead()) {
 		bIsDead = true;
 		bIsAttacking = false;
@@ -102,6 +101,9 @@ float AZCZombieCharacter::TakeDamage(float DamageAmount, const FDamageEvent& Dam
 		if (IsValid(ZCGameMode)) ZCGameMode->HandleEnemyKilled(this, EventInstigator);
 		HandleElimination();
 		DeathAnimationComponent->PlayDeathAnimation();
+	}
+	else {
+		BP_PlayHitReactionAnimation();
 	}
 	return ActualDamage;
 }
