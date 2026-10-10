@@ -19,6 +19,7 @@
 #include "ZCWeaponTypes.h"
 #include "Engine/DataTable.h"
 #include "ZCWeaponBasic.h"
+#include "TimerManager.h"
 
 // Sets default values
 AZCPlayerCharacter::AZCPlayerCharacter()
@@ -136,9 +137,17 @@ float AZCPlayerCharacter::TakeDamage(float DamageAmount, const FDamageEvent& Dam
 			*GetNameSafe(this),
 			*GetNameSafe(EventInstigator)
 		);
+		GetWorldTimerManager().ClearTimer(HitReactionTimerHandle);
 		DeathAnimationComponent->PlayDeathAnimation();
 	}
 	else {
+		GetWorldTimerManager().SetTimer(
+			HitReactionTimerHandle,
+			0.35f,
+			false
+		);
+		GetCharacterMovement()->StopMovementImmediately();
+		ConsumeMovementInputVector();//清理积累的移动输入
 		BP_PlayHitReactionAnimation();
 	}
 	return ActualDamage;
@@ -173,6 +182,8 @@ void AZCPlayerCharacter::Move(const FInputActionValue& Value)
 
 void AZCPlayerCharacter::FireWeapon()
 {
+	if (GetWorldTimerManager().IsTimerActive(HitReactionTimerHandle) || bIsDead) return;
+
 	if (!IsValid(CurrentWeapon)) {
 		UE_LOG(LogTemp, Warning, TEXT("Error, Nullptr"));
 		return;
@@ -184,6 +195,8 @@ void AZCPlayerCharacter::FireWeapon()
 
 void AZCPlayerCharacter::ChangeWeapons(const FInputActionValue& Value)
 {
+	if (GetWorldTimerManager().IsTimerActive(HitReactionTimerHandle)) return;
+
 	if (bIsDead) return;
 	
 	const float Axis = Value.Get<float>();

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Engine/TimerHandle.h"
 #include "ZCPlayerCharacter.generated.h"
 
 class UInputAction;
@@ -113,4 +114,5 @@ private:
 	float NextPistolFireTime = 0.0f;
 	int32 CurrentWeaponIndex = 0;
 	AZCWeaponBasic* CurrentWeapon = nullptr;
+	FTimerHandle HitReactionTimerHandle;
 };
