@@ -146,9 +146,11 @@ float AZCPlayerCharacter::TakeDamage(float DamageAmount, const FDamageEvent& Dam
 			0.35f,
 			false
 		);
-		GetCharacterMovement()->StopMovementImmediately();
-		ConsumeMovementInputVector();//清理积累的移动输入
+		//受击更新时间句柄，用于阻止输入，僵尸的后面加了攻击再加。
 		BP_PlayHitReactionAnimation();
+		FVector DamageCauserDirection = DamageCauser->GetActorForwardVector();
+		KnockbackVelocityEachAxis = DamageCauserDirection * KnockbackVelocity;
+		LaunchCharacter(KnockbackVelocityEachAxis, true, true);
 	}
 	return ActualDamage;
 

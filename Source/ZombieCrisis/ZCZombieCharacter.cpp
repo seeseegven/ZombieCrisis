@@ -54,7 +54,7 @@ bool AZCZombieCharacter::IsDead()
 
 float AZCZombieCharacter::TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	if (bIsDead) {
+	if (bIsDead || !IsValid(DamageCauser)) {
 		return 0.0f;
 	}
 
@@ -103,6 +103,10 @@ float AZCZombieCharacter::TakeDamage(float DamageAmount, const FDamageEvent& Dam
 		DeathAnimationComponent->PlayDeathAnimation();
 	}
 	else {
+		AActor* Attacker = DamageCauser->GetOwner();
+		FVector DamageCauserDirection = Attacker->GetActorForwardVector();
+		KnockbackVelocityEachAxis = DamageCauserDirection * KnockbackVelocity;
+		LaunchCharacter(KnockbackVelocityEachAxis, true, true);
 		BP_PlayHitReactionAnimation();
 	}
 	return ActualDamage;

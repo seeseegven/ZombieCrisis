@@ -88,6 +88,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "ZC|Speed")
 	float RotateRateY = 180.f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "ZC|Speed")
+	float KnockbackVelocity = 300.f;
+
 	UFUNCTION(BlueprintImplementableEvent, Category = "ZC|Weapon")
 	void BP_ApplyNewWeaponVisual(TSubclassOf<AActor> VisualClass,
 		const FTransform& RelativeTransform);
@@ -115,4 +118,5 @@ private:
 	int32 CurrentWeaponIndex = 0;
 	AZCWeaponBasic* CurrentWeapon = nullptr;
 	FTimerHandle HitReactionTimerHandle;
+	FVector KnockbackVelocityEachAxis;
 };

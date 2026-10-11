@@ -25,8 +25,13 @@ protected:
 	float CurrentHealth=0.f;
 	UPROPERTY(EditDefaultsOnly, Category = "ScoreWidget")
 	TSubclassOf<UUZCFloatingScore> ScoreWidgetClass;
+
 	UPROPERTY(VisibleAnywhere, Category = "ZC|Death")
 	TObjectPtr<UZCDeathAnimationComponent> DeathAnimationComponent;
+
+	UPROPERTY(EditDefaultsOnly, Category = "ZC|Speed")
+	float KnockbackVelocity = 300.f;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	bool IsDead();
@@ -68,4 +73,6 @@ protected:
 	bool bIsAttacking = false;
 	bool bIsTargetInAttackRange = false;
 	bool bIsDead = false;
+private:
+	FVector KnockbackVelocityEachAxis;
 };
