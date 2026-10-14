@@ -11,6 +11,7 @@
 #include "UZCFloatingScore.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "GameFramework/PlayerController.h"
+#include "ZCManageKnockback.h"
 
 // Sets default values
 AZCZombieCharacter::AZCZombieCharacter()
@@ -104,9 +105,9 @@ float AZCZombieCharacter::TakeDamage(float DamageAmount, const FDamageEvent& Dam
 	}
 	else {
 		AActor* Attacker = DamageCauser->GetOwner();
-		FVector DamageCauserDirection = Attacker->GetActorForwardVector();
-		KnockbackVelocityEachAxis = DamageCauserDirection * KnockbackVelocity;
-		LaunchCharacter(KnockbackVelocityEachAxis, true, true);
+		if (UZCManageKnockback* Knockback = FindComponentByClass<UZCManageKnockback>()) {
+			Knockback->StartKnockback(Attacker->GetActorForwardVector(), KnockbackVelocity, 0.15f);
+		}
 		BP_PlayHitReactionAnimation();
 	}
 	return ActualDamage;

@@ -20,6 +20,7 @@
 #include "Engine/DataTable.h"
 #include "ZCWeaponBasic.h"
 #include "TimerManager.h"
+#include "ZCManageKnockback.h"
 
 // Sets default values
 AZCPlayerCharacter::AZCPlayerCharacter()
@@ -141,16 +142,19 @@ float AZCPlayerCharacter::TakeDamage(float DamageAmount, const FDamageEvent& Dam
 		DeathAnimationComponent->PlayDeathAnimation();
 	}
 	else {
-		GetWorldTimerManager().SetTimer(
-			HitReactionTimerHandle,
-			0.35f,
-			false
-		);
-		//受击更新时间句柄，用于阻止输入，僵尸的后面加了攻击再加。
-		BP_PlayHitReactionAnimation();
-		FVector DamageCauserDirection = DamageCauser->GetActorForwardVector();
-		KnockbackVelocityEachAxis = DamageCauserDirection * KnockbackVelocity;
-		LaunchCharacter(KnockbackVelocityEachAxis, true, true);
+		if (UZCManageKnockback* Knockback = FindComponentByClass<UZCManageKnockback>()) {
+			GetWorldTimerManager().SetTimer(
+				HitReactionTimerHandle,
+				0.35f,
+				false
+			);
+			BP_PlayHitReactionAnimation();
+			Knockback->StartKnockback(
+				DamageCauser->GetActorForwardVector(),
+				KnockbackVelocity,
+				0.15f
+			);
+		}
 	}
 	return ActualDamage;
 
@@ -175,6 +179,8 @@ void AZCPlayerCharacter::BeginPlay()
 
 void AZCPlayerCharacter::Move(const FInputActionValue& Value)
 {
+	if (GetWorldTimerManager().IsTimerActive(HitReactionTimerHandle) || bIsDead) return;
+
 	const FVector2D Input = Value.Get<FVector2D>().GetClampedToMaxSize(1.0f);
 	//获取最大长度不超过1的向量
 	AddMovementInput(FVector(1.0f, 0.0f, 0.0f), Input.X);//朝x轴方向输入x轴分量的强度
