@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "TimerManager.h"
+#include "ZCManageKnockback.h"
 
 void AZCZombieAIController::OnPossess(APawn* InPawn)
 {
@@ -55,6 +56,10 @@ void AZCZombieAIController::UpdateChase()
 	if (!IsValid(Player)) return;
 
 	if (GetMoveStatus() != EPathFollowingStatus::Idle) return;
+
+	UZCManageKnockback* Knockback = GetPawn()->FindComponentByClass<UZCManageKnockback>();
+
+	if (IsValid(Knockback) && Knockback->GetKnockbackStatus()) return;
 
 	EPathFollowingRequestResult::Type Result = MoveToActor(
 		Player,

@@ -21,7 +21,7 @@ public:
 
 	void StartKnockback(const FVector& Direction, float BackSpeed, float BackDuration);
 	void StopKnockback();
-
+	bool GetKnockbackStatus() const;
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

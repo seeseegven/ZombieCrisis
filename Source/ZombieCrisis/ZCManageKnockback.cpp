@@ -7,6 +7,7 @@
 #include "GameFramework/Character.h"                   // ACharacter
 #include "GameFramework/CharacterMovementComponent.h" // UCharacterMovementComponent
 #include "TimerManager.h"                              // SetTimer¡¢ClearTimer
+#include "AIController.h"
 
 // Sets default values for this component's properties
 UZCManageKnockback::UZCManageKnockback()
@@ -30,6 +31,11 @@ void UZCManageKnockback::StartKnockback(const FVector& Direction, float BackSpee
 	KnockbackDirection = Direction;
 	KnockbackSpeed = BackSpeed;
 	bKnockbackActive = true;
+
+	AAIController* Controller = Cast<AAIController>(Owner->GetController());
+	if (IsValid(Controller)) {
+		Controller->StopMovement();
+	}
 
 	Owner->SetActorRotation((- KnockbackDirection).Rotation());
 	Owner->LaunchCharacter(KnockbackDirection * BackSpeed, true, true);
@@ -61,6 +67,11 @@ void UZCManageKnockback::StopKnockback()
 
 	Movement->ClearAccumulatedForces();
 	Movement->StopMovementKeepPathing();
+}
+
+bool UZCManageKnockback::GetKnockbackStatus() const
+{
+	return bKnockbackActive;
 }
 
 

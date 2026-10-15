@@ -106,7 +106,7 @@ float AZCZombieCharacter::TakeDamage(float DamageAmount, const FDamageEvent& Dam
 	else {
 		AActor* Attacker = DamageCauser->GetOwner();
 		if (UZCManageKnockback* Knockback = FindComponentByClass<UZCManageKnockback>()) {
-			Knockback->StartKnockback(Attacker->GetActorForwardVector(), KnockbackVelocity, 0.15f);
+			Knockback->StartKnockback(Attacker->GetActorForwardVector(), KnockbackVelocity, 0.5f);
 		}
 		BP_PlayHitReactionAnimation();
 	}
