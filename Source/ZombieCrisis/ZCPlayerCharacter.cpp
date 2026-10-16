@@ -21,6 +21,7 @@
 #include "ZCWeaponBasic.h"
 #include "TimerManager.h"
 #include "ZCManageKnockback.h"
+#include "ZCGameMode.h"
 
 // Sets default values
 AZCPlayerCharacter::AZCPlayerCharacter()
@@ -139,6 +140,11 @@ float AZCPlayerCharacter::TakeDamage(float DamageAmount, const FDamageEvent& Dam
 			*GetNameSafe(EventInstigator)
 		);
 		GetWorldTimerManager().ClearTimer(HitReactionTimerHandle);
+		if (AZCGameMode* GameMode = Cast<AZCGameMode>(
+			UGameplayStatics::GetGameMode(this)
+		)) {
+			GameMode->HandlePlayerDied();
+		}
 		DeathAnimationComponent->PlayDeathAnimation();
 	}
 	else {

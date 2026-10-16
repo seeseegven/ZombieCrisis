@@ -24,7 +24,7 @@ void AZCWeaponGun::WeaponApply()
 
 	TArray<USceneComponent*> SceneComponents;
 	WeaponOwner->GetComponents<USceneComponent>(SceneComponents, true);
-	//»ñÈ¡Íæ¼ÒÉíÉÏµÄ×é¼ş£¬SceneComponents±äÁ¿½ÓÊÕ½á¹û£¬true±íÊ¾µİ¹éÑ°ÕÒ×ÓactorµÄ×é¼ş
+	//è·å–ç©å®¶èº«ä¸Šçš„ç»„ä»¶ï¼ŒSceneComponentså˜é‡æ¥æ”¶ç»“æœï¼Œtrueè¡¨ç¤ºé€’å½’å¯»æ‰¾å­actorçš„ç»„ä»¶
 	USceneComponent* MuzzlePoint = nullptr;
 	for (USceneComponent* Component : SceneComponents) {
 		if (IsValid(Component) && Component->GetFName() == TEXT("MuzzlePoint")) {
@@ -42,7 +42,7 @@ void AZCWeaponGun::WeaponApply()
 	FVector TraceEnd = TraceStart + AimDirection * DamageRange;
 
 	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActor(this);//ºöÂÔ×Ô¼º
+	QueryParams.AddIgnoredActor(this);//å¿½ç•¥è‡ªå·±
 	QueryParams.AddIgnoredActor(WeaponOwner);
 
 	if (IsValid(MuzzleFlashSystem)) {
@@ -54,7 +54,7 @@ void AZCWeaponGun::WeaponApply()
 		);
 	}
 
-	float EachAngle = -StartDegreeOffset;//Ã¿´ÎÆ«ÒÆ¶àÉÙ¶È£¬³õÖµÎª¿ªÊ¼µÄÆ«ÒÆ½Ç¶È
+	float EachAngle = -StartDegreeOffset;//æ¯æ¬¡åç§»å¤šå°‘åº¦ï¼Œåˆå€¼ä¸ºå¼€å§‹çš„åç§»è§’åº¦
 	FVector LineDirection = AimDirection.RotateAngleAxis(EachAngle, FVector::UpVector);
 	for (int32 Index = 0; Index < TraceCount; Index++) {
 		FHitResult HitResult;

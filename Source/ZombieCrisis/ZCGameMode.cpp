@@ -3,6 +3,10 @@
 
 #include "ZCGameMode.h"
 #include "ZCGameState.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/PlayerController.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
 
 AZCGameMode::AZCGameMode()
 {
@@ -19,7 +23,7 @@ void AZCGameMode::HandleEnemyKilled(AActor* KilledEnemy, AController* KillerCont
 		UE_LOG(
 			LogTemp,
 			Warning,
-			TEXT("×ª»»Ê§°Ü£¬ÎÞ·¨Ìí¼Ó·ÖÊý")
+			TEXT("è½¬æ¢å¤±è´¥ï¼Œæ— æ³•æ·»åŠ åˆ†æ•°")
 			);
 		return;
 	}
@@ -32,4 +36,50 @@ void AZCGameMode::HandleEnemyKilled(AActor* KilledEnemy, AController* KillerCont
 		*GetNameSafe(KillerController),
 		ZCGameState->GetCurrentScore()
 	);
+}
+
+void AZCGameMode::HandlePlayerDied()
+{
+	AZCGameState* CurrentGameState = Cast<AZCGameState>(GameState);
+
+	if (!IsValid(CurrentGameState)) {
+		UE_LOG(
+			LogTemp,
+			Error,
+			TEXT("Error. Invalid GameState")
+		);
+		return;
+	}
+
+	BP_DisplayFinalScore(CurrentGameState->GetCurrentScore());
+}
+
+void AZCGameMode::HandleRestartLevel()
+{
+	FString LevelName = UGameplayStatics::GetCurrentLevelName(this, true);
+
+	if (LevelName.IsEmpty()) {
+		UE_LOG(
+			LogTemp,
+			Error,
+			TEXT("Current Level is empty.")
+		);
+		return;
+	}
+
+	APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
+	if (!IsValid(PC)) {
+		UE_LOG(
+			LogTemp,
+			Error,
+			TEXT("Player is not valid.")
+		);
+		return;
+	}
+
+	UGameplayStatics::SetGamePaused(this, false);
+	UWidgetBlueprintLibrary::SetInputMode_GameOnly(PC, true);
+	UWidgetLayoutLibrary::RemoveAllWidgets(this);
+
+	UGameplayStatics::OpenLevel(this, FName(LevelName), true);
 }

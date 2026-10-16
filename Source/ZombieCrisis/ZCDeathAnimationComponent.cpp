@@ -6,6 +6,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "TimerManager.h"
+#include "Kismet/GameplayStatics.h"
+#include "ZCPlayerCharacter.h"
 
 UZCDeathAnimationComponent::UZCDeathAnimationComponent()
 {
@@ -25,7 +27,7 @@ void UZCDeathAnimationComponent::PlayDeathAnimation()
 		return;
 	}
 
-	AActor* Owner = GetOwner();//×é¼şÓµÓĞÕß
+	AActor* Owner = GetOwner();//ç»„ä»¶æ‹¥æœ‰è€…
 	if (!IsValid(Owner)) {
 		return;
 	}
@@ -79,9 +81,9 @@ void UZCDeathAnimationComponent::TickComponent(
 		SetComponentTickEnabled(false);
 		return;
 	}
-	//					×ÜÊ±³¤																·Ç³£Ğ¡µÄÕıÊı£¬Ç÷½üÓÚ0£¬±ÜÃâ³ı0´íÎó
+	//					æ€»æ—¶é•¿																éå¸¸å°çš„æ­£æ•°ï¼Œè¶‹è¿‘äº0ï¼Œé¿å…é™¤0é”™è¯¯
 	const float SafeFallDuration = FMath::Max(FallDuration, KINDA_SMALL_NUMBER);
-	ElapsedFallTime = FMath::Min(ElapsedFallTime + DeltaTime, SafeFallDuration);//ÒÑ¾­²¥·ÅµÄÊ±³¤
+	ElapsedFallTime = FMath::Min(ElapsedFallTime + DeltaTime, SafeFallDuration);//å·²ç»æ’­æ”¾çš„æ—¶é•¿
 	const float LinearAlpha = ElapsedFallTime / SafeFallDuration;
 	const float SmoothAlpha = FMath::InterpEaseInOut(0.0f, 1.0f, LinearAlpha, 2.0f);
 	const FQuat NewRotation = FQuat::Slerp(
@@ -93,6 +95,14 @@ void UZCDeathAnimationComponent::TickComponent(
 	if (LinearAlpha >= 1.0f) {
 		VisualRoot->SetRelativeRotation(TargetRelativeRotation);
 		SetComponentTickEnabled(false);
+		if (AZCPlayerCharacter* Player = Cast<AZCPlayerCharacter>(GetOwner())) {
+			UGameplayStatics::SetGamePaused(this, true);
+			UE_LOG(
+				LogTemp,
+				Warning,
+				TEXT("Current world is paused.")
+			);
+		}
 	}
 }
 
@@ -122,8 +132,8 @@ void UZCDeathAnimationComponent::DisableOwnerGameplay()
 		return;
 	}
 
-	Owner->SetCanBeDamaged(false);//²»ÄÜÊÜµ½ÉËº¦
-	Owner->SetActorEnableCollision(false);//½ûÖ¹Åö×²
+	Owner->SetCanBeDamaged(false);//ä¸èƒ½å—åˆ°ä¼¤å®³
+	Owner->SetActorEnableCollision(false);//ç¦æ­¢ç¢°æ’
 
 	ACharacter* Character = Cast<ACharacter>(Owner);
 	if (!Character) {
@@ -132,11 +142,11 @@ void UZCDeathAnimationComponent::DisableOwnerGameplay()
 
 	if (UCharacterMovementComponent* Movement = Character->GetCharacterMovement()) {
 		Movement->StopMovementImmediately();
-		Movement->DisableMovement();//Í£Ö¹ÒÆ¶¯
+		Movement->DisableMovement();//åœæ­¢ç§»åŠ¨
 	}
 
 	if (APlayerController* PlayerController = Cast<APlayerController>(Character->GetController())) {
-		Character->DisableInput(PlayerController);//½ûÖ¹ÊäÈë
+		Character->DisableInput(PlayerController);//ç¦æ­¢è¾“å…¥
 	}
 }
 

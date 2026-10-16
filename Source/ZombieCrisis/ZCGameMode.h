@@ -16,7 +16,16 @@ class ZOMBIECRISIS_API AZCGameMode : public AGameModeBase
 public:
 	AZCGameMode();
 	void HandleEnemyKilled(AActor* KilledEnemy, AController* KillerController);
+	void HandlePlayerDied();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_DisplayFinalScore(int32 FinalScore);
+
+	UFUNCTION(BlueprintCallable)
+	void HandleRestartLevel();
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Score")
 	int32 ZombieKilledScore = 100;
+
 };

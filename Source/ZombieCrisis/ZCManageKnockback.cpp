@@ -3,10 +3,10 @@
 
 #include "ZCManageKnockback.h"
 #include "Components/CapsuleComponent.h"              // UCapsuleComponent
-#include "Engine/World.h"                              // UWorld¡¢GetTimerManager
+#include "Engine/World.h"                              // UWorldã€GetTimerManager
 #include "GameFramework/Character.h"                   // ACharacter
 #include "GameFramework/CharacterMovementComponent.h" // UCharacterMovementComponent
-#include "TimerManager.h"                              // SetTimer¡¢ClearTimer
+#include "TimerManager.h"                              // SetTimerã€ClearTimer
 #include "AIController.h"
 
 // Sets default values for this component's properties
@@ -43,9 +43,9 @@ void UZCManageKnockback::StartKnockback(const FVector& Direction, float BackSpee
 	World->GetTimerManager().SetTimer(
 		KnockbackTimerHandle,
 		this,
-		&UZCManageKnockback::StopKnockback,//µ½Ê±ÔËĞĞ
+		&UZCManageKnockback::StopKnockback,//åˆ°æ—¶è¿è¡Œ
 		BackDuration,
-		false//²»Ñ­»·
+		false//ä¸å¾ªç¯
 	);
 }
 
@@ -100,7 +100,7 @@ void UZCManageKnockback::HandleCapsuleHit(
 	FVector NormalImpulse,
 	const FHitResult& Hit)
 {
-	if (!bKnockbackActive || !Hit.bBlockingHit) return;//bBlockingHitÊÇ×èµ²½á¹û
+	if (!bKnockbackActive || !Hit.bBlockingHit) return;//bBlockingHitæ˜¯é˜»æŒ¡ç»“æœ
 
 	const FVector BeKnockedSurface = -Hit.ImpactNormal.GetSafeNormal2D();
 	if (BeKnockedSurface.IsNearlyZero()) return;

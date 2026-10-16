@@ -8,7 +8,7 @@
 #include "ZCWeaponProgressionComponent.generated.h"
 
 class UDataTable;
-//                   ÔÚzombie crisis·ÖÀàÏÂ¿ÉÒÔÕÒµ½£¬À¶Í¼ÄÚ¿ÉÒÔÌí¼Ó×é¼ş
+//                   åœ¨zombie crisisåˆ†ç±»ä¸‹å¯ä»¥æ‰¾åˆ°ï¼Œè“å›¾å†…å¯ä»¥æ·»åŠ ç»„ä»¶
 UCLASS( ClassGroup=(ZombieCrisis), meta=(BlueprintSpawnableComponent) )
 class ZOMBIECRISIS_API UZCWeaponProgressionComponent : public UActorComponent
 {
@@ -23,7 +23,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "ZC|Progression")
 	void SetPlayerLevel(int32 NewLevel);
-	//                     ´¿º¯Êı£¬Ö»¶ÁÈ¡Êı¾İ
+	//                     çº¯å‡½æ•°ï¼Œåªè¯»å–æ•°æ®
 	UFUNCTION(BlueprintPure, Category = "ZC|Progression")
 	int32 GetPlayerLevel() const {
 		return PlayerLevel;
@@ -32,7 +32,7 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-	//                        ½öĞŞ¸ÄÄ¬ÈÏÖµ£¬²»ÄÜ¸ÄÊµÀı¶ÔÏó
+	//                        ä»…ä¿®æ”¹é»˜è®¤å€¼ï¼Œä¸èƒ½æ”¹å®ä¾‹å¯¹è±¡
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ZC|Data")
 	TObjectPtr<UDataTable> WeaponDefinitions;
 
@@ -40,12 +40,12 @@ protected:
 	TObjectPtr<UDataTable> LevelRewards;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, 
-		Category = "ZC|Progression", meta = (ClampMin = "1"))//×îĞ¡ÖµÎª1
+		Category = "ZC|Progression", meta = (ClampMin = "1"))//æœ€å°å€¼ä¸º1
 	int32 StartingLevel = 1;
 	
 private:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, 
 		Category = "ZC|Progression", meta = (AllowPrivateAccess="true"))
-	int32 PlayerLevel = 1;                    //              Ë½ÓĞ±äÁ¿£¬µ«ÊÇ¿ÉÒÔÍ¨¹ı·´ÉäÏµÍ³¶ÁÈ¡
+	int32 PlayerLevel = 1;                    //              ç§æœ‰å˜é‡ï¼Œä½†æ˜¯å¯ä»¥é€šè¿‡åå°„ç³»ç»Ÿè¯»å–
 		
 };
