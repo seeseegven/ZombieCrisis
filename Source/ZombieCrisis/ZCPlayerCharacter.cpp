@@ -203,7 +203,7 @@ void AZCPlayerCharacter::FireWeapon()
 		return;
 	}
 	CurrentWeapon->WeaponApply();
-	UE_LOG(LogTemp, Warning, TEXT("开始射击"));
+	//UE_LOG(LogTemp, Warning, TEXT("开始射击"));
 	
 }
 

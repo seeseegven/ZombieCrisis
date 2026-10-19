@@ -21,7 +21,7 @@ AZCZombieSpawner::AZCZombieSpawner()
 		TEXT("ReleaseTrigger")
 	);
 	ReleaseTrigger->SetupAttachment(SpawnPoint);
-	ReleaseTrigger->SetRelativeLocation(FVector(600.f, 0.f, 0.f));
+	
 
 	ReleaseTrigger->SetBoxExtent(
 		FVector(60.f, 150.f, 160.f),
@@ -37,6 +37,38 @@ AZCZombieSpawner::AZCZombieSpawner()
 void AZCZombieSpawner::BeginPlay()
 {
 	Super::BeginPlay();
+
+	AZCZombieCharacter* ZombieDefaults = ZombieClass.GetDefaultObject();
+	if (IsValid(ZombieDefaults)) {
+		UCapsuleComponent* CapsuleComp = ZombieDefaults->GetCapsuleComponent();
+		if (IsValid(CapsuleComp)) {
+			float CapsuleDiameter = CapsuleComp->GetUnscaledCapsuleRadius() * 2.f;
+
+			ReleaseTrigger->SetRelativeLocation(FVector(CapsuleDiameter, 0.f, 0.f));
+		}
+	}
+	else {
+		ReleaseTrigger->SetRelativeLocation(FVector(100.f, 0.f, 0.f));
+	}
+
+	// 从两个世界位置计算位移，方向是“出生点指向触发器”。
+	const FVector WorldOffset =
+		ReleaseTrigger->GetComponentLocation()
+		- SpawnPoint->GetComponentLocation();
+
+	// UE API：获取生产点局部 X 轴在世界空间中的单位方向。
+	const FVector ForwardDirection = SpawnPoint->GetForwardVector();
+
+	// UE API：点积。沿单位方向投影，得到该方向上的有符号距离。
+	const double ForwardDistance =
+		FVector::DotProduct(WorldOffset, ForwardDirection);
+
+	UE_LOG(
+		LogTemp,
+		Display,
+		TEXT("Forward distance: %.1f cm"),
+		ForwardDistance
+	);
 
 	ReleaseTrigger->OnComponentBeginOverlap.AddUniqueDynamic(
 		this,
@@ -65,6 +97,12 @@ void AZCZombieSpawner::SpawnZombie()
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.SpawnCollisionHandlingOverride =
 		ESpawnActorCollisionHandlingMethod::DontSpawnIfColliding;
+
+	float BornOffset = ReleaseTrigger->GetScaledBoxExtent().Y;
+	SpawnLocation.Y = FMath::FRandRange(
+		SpawnLocation.Y - BornOffset,
+		SpawnLocation.Y + BornOffset
+	);
 
 	AZCZombieCharacter* SpawnedZombie = World->SpawnActor<AZCZombieCharacter>(
 		ZombieClass.Get(),

@@ -91,7 +91,12 @@ void AZCWeaponGun::WeaponApply()
 				LineDirection = AimDirection.RotateAngleAxis(EachAngle, FVector::UpVector);
 			}
 			if (bWeaponHit && HitResult.GetActor()) {
-
+				UE_LOG(
+					LogTemp,
+					Display,
+					TEXT("Hit the %s"),
+					*GetNameSafe(HitResult.GetActor())
+				);
 				UGameplayStatics::ApplyPointDamage(
 					HitResult.GetActor(),
 					WeaponDamage,
