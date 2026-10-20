@@ -105,10 +105,7 @@ void AZCZombieSpawner::SpawnZombie()
 		ESpawnActorCollisionHandlingMethod::DontSpawnIfColliding;
 
 	float BornOffset = ReleaseTrigger->GetScaledBoxExtent().Y;
-	SpawnLocation.Y = FMath::FRandRange(
-		SpawnLocation.Y - BornOffset,
-		SpawnLocation.Y + BornOffset
-	);
+	SpawnLocation += SpawnPoint->GetRightVector() * FMath::FRandRange(-BornOffset, BornOffset);
 
 	AZCZombieCharacter* SpawnedZombie = World->SpawnActor<AZCZombieCharacter>(
 		ZombieClass.Get(),
