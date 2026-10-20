@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
+#include "ZCZombieSpawner.h"
 
 AZCGameMode::AZCGameMode()
 {
@@ -28,6 +29,25 @@ void AZCGameMode::HandleEnemyKilled(AActor* KilledEnemy, AController* KillerCont
 		return;
 	}
 	ZCGameState->AddScore(ZombieKilledScore);
+	CurrentAliveZombie--;
+	if (CurrentAliveZombie <= 0) {
+		Wave++;
+		UE_LOG(
+			LogTemp,
+			Error,
+			TEXT("Current wave ended.")
+		);
+
+		GetWorldTimerManager().SetTimer(
+			WaveTimerHandle,
+			this,
+			&AZCGameMode::SpawningEachWave,
+			5.0f,
+			false
+			);
+		
+		
+	}
 	UE_LOG(
 		LogTemp,
 		Display,
@@ -52,6 +72,31 @@ void AZCGameMode::HandlePlayerDied()
 	}
 
 	BP_DisplayFinalScore(CurrentGameState->GetCurrentScore());
+}
+
+void AZCGameMode::StartPlay()
+{
+	Super::StartPlay();
+
+	Wave = 1;
+	ZombieSpawners.Reset();
+
+	TArray<AActor*> SpawnersInMap;
+
+	UGameplayStatics::GetAllActorsOfClass(
+		this,
+		AZCZombieSpawner::StaticClass(),
+		SpawnersInMap
+	);
+	
+	for (AActor* Spawner : SpawnersInMap) {
+		AZCZombieSpawner* CheckedSpawner = Cast<AZCZombieSpawner>(Spawner);
+		if (IsValid(CheckedSpawner)) {
+			ZombieSpawners.Add(CheckedSpawner);
+		}
+	}
+
+	SpawningEachWave();
 }
 
 void AZCGameMode::HandleRestartLevel()
@@ -82,4 +127,23 @@ void AZCGameMode::HandleRestartLevel()
 	UWidgetLayoutLibrary::RemoveAllWidgets(this);
 
 	UGameplayStatics::OpenLevel(this, FName(LevelName), true);
+}
+
+int32 AZCGameMode::ManageSpawningCount()
+{
+	return Wave*2;
+}
+
+void AZCGameMode::SpawningEachWave()
+{
+	for (AZCZombieSpawner* Spawner : ZombieSpawners) {
+		CurrentAliveZombie += ManageSpawningCount();
+		Spawner->StartSpawning(ManageSpawningCount());
+		UE_LOG(
+			LogTemp,
+			Display,
+			TEXT("Start Wave Wave")
+		);
+	}
+
 }

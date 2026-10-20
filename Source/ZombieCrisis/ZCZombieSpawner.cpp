@@ -33,6 +33,31 @@ AZCZombieSpawner::AZCZombieSpawner()
 	ReleaseTrigger->SetCanEverAffectNavigation(false);
 }
 
+void AZCZombieSpawner::StartSpawning(int32 NewCount)
+{
+	StopSpawning();
+
+	Count = FMath::Max(0, NewCount);
+	if (Count > 0) {
+		UE_LOG(
+			LogTemp,
+			Warning,
+			TEXT("Total zombie: %d"),
+			Count
+		);
+		SpawnZombie();
+		
+	}
+}
+
+void AZCZombieSpawner::StopSpawning()
+{
+	Count = 0;
+
+	GetWorldTimerManager().ClearTimer(SpawnTimerHandle);
+	WaitingZombie = nullptr;
+}
+
 // Called when the game starts or when spawned
 void AZCZombieSpawner::BeginPlay()
 {
@@ -51,31 +76,12 @@ void AZCZombieSpawner::BeginPlay()
 		ReleaseTrigger->SetRelativeLocation(FVector(100.f, 0.f, 0.f));
 	}
 
-	// 从两个世界位置计算位移，方向是“出生点指向触发器”。
-	const FVector WorldOffset =
-		ReleaseTrigger->GetComponentLocation()
-		- SpawnPoint->GetComponentLocation();
-
-	// UE API：获取生产点局部 X 轴在世界空间中的单位方向。
-	const FVector ForwardDirection = SpawnPoint->GetForwardVector();
-
-	// UE API：点积。沿单位方向投影，得到该方向上的有符号距离。
-	const double ForwardDistance =
-		FVector::DotProduct(WorldOffset, ForwardDirection);
-
-	UE_LOG(
-		LogTemp,
-		Display,
-		TEXT("Forward distance: %.1f cm"),
-		ForwardDistance
-	);
-
 	ReleaseTrigger->OnComponentBeginOverlap.AddUniqueDynamic(
 		this,
 		&AZCZombieSpawner::HandleReleaseTriggerOverlap
 	);
 
-	SpawnZombie();
+	//SpawnZombie();
 }
 
 void AZCZombieSpawner::SpawnZombie()

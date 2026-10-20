@@ -18,6 +18,9 @@ public:
 	// Sets default values for this actor's properties
 	AZCZombieSpawner();
 
+	void StartSpawning(int32 NewCount);
+	void StopSpawning();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
