@@ -264,12 +264,12 @@ void AZCPlayerCharacter::TogglePause()
 	}
 
 	if (!IsValid(PauseMenuWidgetClass)) return;
-	if (!IsValid(PauseMenuWidget)) {
+	//if (!IsValid(PauseMenuWidget)) {
 		PauseMenuWidget = CreateWidget<UUserWidget>(
 			PC,
 			PauseMenuWidgetClass
 		);
-	}//复用
+	//}//复用
 	if (!IsValid(PauseMenuWidget)) return;
 	UGameplayStatics::SetGamePaused(this, true);
 	PauseMenuWidget->AddToViewport(0);
