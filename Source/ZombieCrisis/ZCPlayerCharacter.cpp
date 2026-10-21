@@ -22,6 +22,8 @@
 #include "TimerManager.h"
 #include "ZCManageKnockback.h"
 #include "ZCGameMode.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
+#include "Blueprint/UserWidget.h"
 
 // Sets default values
 AZCPlayerCharacter::AZCPlayerCharacter()
@@ -91,6 +93,15 @@ void AZCPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 			ETriggerEvent::Started,
 			this,
 			&AZCPlayerCharacter::ChangeWeapons
+		);
+	}
+
+	if (IsValid(EnhancedInput) && IsValid(PauseGameAction)) {
+		EnhancedInput->BindAction(
+			PauseGameAction,
+			ETriggerEvent::Started,
+			this,
+			&AZCPlayerCharacter::TogglePause
 		);
 	}
 }
@@ -229,6 +240,47 @@ void AZCPlayerCharacter::ChangeWeapons(const FInputActionValue& Value)
 	);
 	OnWeaponChanged.Broadcast(FText::FromName(Weapons[CurrentWeaponIndex]));
 	ApplyNewWeapon();
+}
+
+void AZCPlayerCharacter::TogglePause()
+{
+	if (bIsDead) return;//没考虑到，死亡后只能产生一个ui
+
+	APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
+	if (!IsValid(PC)) return;
+
+	if (UGameplayStatics::IsGamePaused(this)) {
+		//if (!UGameplayStatics::SetGamePaused(this, false)) {
+		//	return;
+		//}
+
+		if (IsValid(PauseMenuWidget)) {
+			PauseMenuWidget->RemoveFromParent();
+		}
+		UGameplayStatics::SetGamePaused(this, false);
+		PC->bShowMouseCursor = false;
+		UWidgetBlueprintLibrary::SetInputMode_GameOnly(PC, false);
+		return;
+	}
+
+	if (!IsValid(PauseMenuWidgetClass)) return;
+	if (!IsValid(PauseMenuWidget)) {
+		PauseMenuWidget = CreateWidget<UUserWidget>(
+			PC,
+			PauseMenuWidgetClass
+		);
+	}//复用
+	if (!IsValid(PauseMenuWidget)) return;
+	UGameplayStatics::SetGamePaused(this, true);
+	PauseMenuWidget->AddToViewport(0);
+	UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(
+		PC,
+		PauseMenuWidget,
+		EMouseLockMode::DoNotLock,
+		false,
+		false
+	);
+	PC->bShowMouseCursor = true;
 }
 
 void AZCPlayerCharacter::ApplyNewWeapon()

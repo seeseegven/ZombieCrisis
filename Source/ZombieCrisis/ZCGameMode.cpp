@@ -129,6 +129,20 @@ void AZCGameMode::HandleRestartLevel()
 	UGameplayStatics::OpenLevel(this, FName(LevelName), true);
 }
 
+void AZCGameMode::HandleReturnMainMenu()
+{
+	UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(
+		UGameplayStatics::GetPlayerController(this, 0),
+		nullptr,
+		EMouseLockMode::DoNotLock,
+		true
+	);
+	UGameplayStatics::OpenLevel(
+		this,
+		"/Game/ZombieCrisis/Maps/L_ZC_MainMenu"
+	);
+}
+
 int32 AZCGameMode::ManageSpawningCount()
 {
 	return Wave*2;

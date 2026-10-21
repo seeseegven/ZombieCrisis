@@ -63,6 +63,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "ZC|Input")
 	TObjectPtr<UInputAction> ChangeWeaponAction;
 
+	UPROPERTY(EditDefaultsOnly, Category = "ZC|Input")
+	TObjectPtr<UInputAction> PauseGameAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "ZC|UI")
+	TSubclassOf<UUserWidget> PauseMenuWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "ZC|Input")
+	TObjectPtr<UUserWidget> PauseMenuWidget = nullptr;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly,
 		Category = "ZC|Weapon")
 	float DamageTraceHeight = 50.0f;
@@ -110,6 +119,7 @@ private:
 	void Move(const FInputActionValue& Value);
 	void FireWeapon();
 	void ChangeWeapons(const FInputActionValue & Value);
+	void TogglePause();
 	void ApplyNewWeapon();
 	bool IsDead();
 	void ChangeWeaponProperty(const FZCWeaponDefinitionRow& Values);

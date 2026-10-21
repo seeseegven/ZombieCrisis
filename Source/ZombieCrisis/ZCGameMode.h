@@ -29,6 +29,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void HandleRestartLevel();
 
+	UFUNCTION(BlueprintCallable)
+	void HandleReturnMainMenu();
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Score")
 	int32 ZombieKilledScore = 100;
