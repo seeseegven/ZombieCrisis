@@ -26,6 +26,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_DisplayFinalScore(int32 FinalScore);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_DisplayCurrentWave(int32 CurrentWave);
+
 	UFUNCTION(BlueprintCallable)
 	void HandleRestartLevel();
 

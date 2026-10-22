@@ -18,7 +18,7 @@ public:
 	// Sets default values for this actor's properties
 	AZCWeaponBasic();
 	virtual void UpdateProperty(const FZCWeaponDefinitionRow& Value) {};
-	virtual void WeaponApply() {};
+	virtual bool WeaponApply() { return false; };
 protected:
 	// Called when the game starts or when spawned
 	float ShotInterval;
@@ -26,6 +26,7 @@ protected:
 	float NextPistolFireTime = 0.0f;
 	UPROPERTY()//uobject类型的加宏交给虚幻的反射系统管理生命周期
 	TObjectPtr<UNiagaraSystem> WeaponEffectSystem = nullptr;
+	bool bUseAmmo = true;
 public:	
 	// Called every frame
 

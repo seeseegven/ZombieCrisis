@@ -20,10 +20,11 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
 	BloodPercent
 );
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
 	FOnWeaponChangedSignature,
-	FText,
-	NewWeaponName
+	FText, NewWeaponName,
+	bool, bUseAmmo,
+	int32, CurrentAmmo
 );
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
@@ -129,4 +130,5 @@ private:
 	AZCWeaponBasic* CurrentWeapon = nullptr;
 	FTimerHandle HitReactionTimerHandle;
 	FVector KnockbackVelocityEachAxis;
+	TMap<FName, TPair<bool, int32>> WeaponCurrentAmmo;
 };

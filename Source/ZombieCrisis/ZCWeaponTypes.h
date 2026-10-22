@@ -64,6 +64,9 @@ struct FZCWeaponDefinitionRow : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
 	float StartDegreeOffset = 3.f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
+	bool bUseAmmo = true;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (ClampMin = "1"))
 	int32 BaseTraceCount = 1;
 

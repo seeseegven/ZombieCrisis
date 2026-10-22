@@ -26,7 +26,7 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UNiagaraSystem> MuzzleFlashSystem = nullptr;
 private:
-	virtual void WeaponApply() override;
+	virtual bool WeaponApply() override;
 	virtual void UpdateProperty(const FZCWeaponDefinitionRow& Value) override;
 	void DrawTraceEffect();
 };

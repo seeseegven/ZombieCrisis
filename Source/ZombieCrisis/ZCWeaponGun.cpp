@@ -8,18 +8,18 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
 
-void AZCWeaponGun::WeaponApply()
+bool AZCWeaponGun::WeaponApply()
 {
 	UWorld* World = GetWorld();
-	if (!World) return;
+	if (!World) return false;
 
 	AActor* WeaponOwner = GetOwner();
-	if (!IsValid(WeaponOwner)) return;
+	if (!IsValid(WeaponOwner)) return false;
 	AController* PC = WeaponOwner->GetInstigatorController();
 
 	const float CurrentTime = World->GetTimeSeconds();
 
-	if (CurrentTime < NextPistolFireTime) return;
+	if (CurrentTime < NextPistolFireTime) return false;
 	NextPistolFireTime = CurrentTime + ShotInterval;
 
 	TArray<USceneComponent*> SceneComponents;
@@ -32,11 +32,11 @@ void AZCWeaponGun::WeaponApply()
 			break;
 		}
 	}
-	if (!IsValid(MuzzlePoint)) return;
+	if (!IsValid(MuzzlePoint)) return false;
 
 	FVector AimDirection = WeaponOwner->GetActorForwardVector();
 	AimDirection.Z = 0.0f;
-	if (!AimDirection.Normalize()) return;
+	if (!AimDirection.Normalize()) return false;
 	//BP_PlayMuzzleFlash();
 	FVector TraceStart = MuzzlePoint->GetComponentLocation();
 	FVector TraceEnd = TraceStart + AimDirection * DamageRange;
@@ -121,7 +121,7 @@ void AZCWeaponGun::WeaponApply()
 		1.f
 	);
 	*/
-	
+	return true;
 }
 
 void AZCWeaponGun::UpdateProperty(const FZCWeaponDefinitionRow& Value)
@@ -136,4 +136,5 @@ void AZCWeaponGun::UpdateProperty(const FZCWeaponDefinitionRow& Value)
 	WeaponEffectSystem = Value.WeaponEffectSystem;
 	TraceCount = Value.BaseTraceCount;
 	StartDegreeOffset = Value.StartDegreeOffset;
+	bUseAmmo = Value.bUseAmmo;
 }

@@ -159,5 +159,5 @@ void AZCGameMode::SpawningEachWave()
 			TEXT("Start Wave Wave")
 		);
 	}
-
+	BP_DisplayCurrentWave(Wave);
 }

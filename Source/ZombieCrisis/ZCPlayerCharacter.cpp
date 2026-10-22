@@ -213,7 +213,30 @@ void AZCPlayerCharacter::FireWeapon()
 		UE_LOG(LogTemp, Warning, TEXT("Error, Nullptr"));
 		return;
 	}
-	CurrentWeapon->WeaponApply();
+	FName CurrentWeaponName = Weapons[CurrentWeaponIndex];
+	if (!WeaponCurrentAmmo.Find(CurrentWeaponName)) return;
+
+	if (WeaponCurrentAmmo[CurrentWeaponName].Key) {
+		if (WeaponCurrentAmmo[CurrentWeaponName].Value <= 0) return;
+		if (CurrentWeapon->WeaponApply()) {
+			WeaponCurrentAmmo[CurrentWeaponName].Value--;
+			OnWeaponChanged.Broadcast(
+				FText::FromName(Weapons[CurrentWeaponIndex]),
+				WeaponCurrentAmmo[CurrentWeaponName].Key,
+				WeaponCurrentAmmo[CurrentWeaponName].Value
+			);
+		}
+	}
+	else {
+		CurrentWeapon->WeaponApply();
+	}
+
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("Current Ammo : %d"),
+		WeaponCurrentAmmo[CurrentWeaponName].Value
+	);
 	//UE_LOG(LogTemp, Warning, TEXT("开始射击"));
 	
 }
@@ -238,7 +261,6 @@ void AZCPlayerCharacter::ChangeWeapons(const FInputActionValue& Value)
 		Direction,
 		CurrentWeaponIndex+1
 	);
-	OnWeaponChanged.Broadcast(FText::FromName(Weapons[CurrentWeaponIndex]));
 	ApplyNewWeapon();
 }
 
@@ -304,6 +326,11 @@ void AZCPlayerCharacter::ApplyNewWeapon()
 		);
 		return;
 	}
+	
+	if (!WeaponCurrentAmmo.Contains(CurrentWeaponName)) {
+		WeaponCurrentAmmo.Add(CurrentWeaponName, 
+			TPair<bool, int32>(Row->bUseAmmo, Row->BaseMagazineSize));
+	}
 
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = this;
@@ -314,4 +341,9 @@ void AZCPlayerCharacter::ApplyNewWeapon()
 	);
 	ChangeWeaponProperty(*Row);
 	BP_ApplyNewWeaponVisual(Row->VisualClass, Row->VisualRelativeTransform);
+	OnWeaponChanged.Broadcast(
+		FText::FromName(Weapons[CurrentWeaponIndex]),
+		WeaponCurrentAmmo[CurrentWeaponName].Key,
+		WeaponCurrentAmmo[CurrentWeaponName].Value
+	);
 }
