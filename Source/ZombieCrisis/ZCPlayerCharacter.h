@@ -73,6 +73,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "ZC|Input")
 	TObjectPtr<UUserWidget> PauseMenuWidget = nullptr;
 
+	UFUNCTION(BlueprintCallable)
+	void ClosePauseWidget();
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly,
 		Category = "ZC|Weapon")
 	float DamageTraceHeight = 50.0f;

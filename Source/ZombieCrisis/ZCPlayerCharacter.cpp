@@ -106,6 +106,19 @@ void AZCPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	}
 }
 
+void AZCPlayerCharacter::ClosePauseWidget()
+{
+	APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
+	if (!IsValid(PC)) return;
+
+	if (IsValid(PauseMenuWidget)) {
+		PauseMenuWidget->RemoveFromParent();
+	}
+	UGameplayStatics::SetGamePaused(this, false);
+	PC->bShowMouseCursor = false;
+	UWidgetBlueprintLibrary::SetInputMode_GameOnly(PC, false);
+}
+
 float AZCPlayerCharacter::TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	if (bIsDead) {
@@ -245,7 +258,7 @@ void AZCPlayerCharacter::ChangeWeapons(const FInputActionValue& Value)
 {
 	if (GetWorldTimerManager().IsTimerActive(HitReactionTimerHandle)) return;
 
-	if (bIsDead) return;
+	if (bIsDead || Weapons.IsEmpty()) return;
 	
 	const float Axis = Value.Get<float>();
 
@@ -334,11 +347,17 @@ void AZCPlayerCharacter::ApplyNewWeapon()
 
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = this;
-	CurrentWeapon = GetWorld()->SpawnActor<AZCWeaponBasic>(
+
+	AZCWeaponBasic* NewWeapon = GetWorld()->SpawnActor<AZCWeaponBasic>(
 		Row->WeaponClass,
 		Row->VisualRelativeTransform,
 		SpawnParams
 	);
+	if (!IsValid(NewWeapon)) return;
+	if (IsValid(CurrentWeapon)) {
+		CurrentWeapon->Destroy();
+	}
+	CurrentWeapon = NewWeapon;
 	ChangeWeaponProperty(*Row);
 	BP_ApplyNewWeaponVisual(Row->VisualClass, Row->VisualRelativeTransform);
 	OnWeaponChanged.Broadcast(

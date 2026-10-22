@@ -90,23 +90,24 @@ bool AZCWeaponGun::WeaponApply()
 				EachAngle += BulletDegrees;
 				LineDirection = AimDirection.RotateAngleAxis(EachAngle, FVector::UpVector);
 			}
-			if (bWeaponHit && HitResult.GetActor()) {
-				UE_LOG(
-					LogTemp,
-					Display,
-					TEXT("Hit the %s"),
-					*GetNameSafe(HitResult.GetActor())
-				);
-				UGameplayStatics::ApplyPointDamage(
-					HitResult.GetActor(),
-					WeaponDamage,
-					AimDirection,
-					HitResult,
-					PC,
-					this,
-					UDamageType::StaticClass()
-				);
-			}
+		}
+
+		if (bWeaponHit && HitResult.GetActor()) {
+			UE_LOG(
+				LogTemp,
+				Display,
+				TEXT("Hit the %s"),
+				*GetNameSafe(HitResult.GetActor())
+			);
+			UGameplayStatics::ApplyPointDamage(
+				HitResult.GetActor(),
+				WeaponDamage,
+				AimDirection,
+				HitResult,
+				PC,
+				this,
+				UDamageType::StaticClass()
+			);
 		}
 	}
 	/*
