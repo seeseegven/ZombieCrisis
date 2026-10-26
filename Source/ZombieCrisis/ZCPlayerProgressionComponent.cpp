@@ -182,6 +182,11 @@ void UZCPlayerProgressionComponent::ApplyNewLevelRewards()
 	}
 }
 
+const TMap<FName, FZCWeaponComputedStats>& UZCPlayerProgressionComponent::GetWeaponStates() const
+{
+	return WeaponStates;
+}
+
 // Called when the game starts
 void UZCPlayerProgressionComponent::BeginPlay()
 {

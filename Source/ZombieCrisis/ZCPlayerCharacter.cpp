@@ -24,6 +24,7 @@
 #include "ZCGameMode.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Blueprint/UserWidget.h"
+#include "ZCPlayerProgressionComponent.h"
 
 // Sets default values
 AZCPlayerCharacter::AZCPlayerCharacter()
@@ -200,7 +201,7 @@ bool AZCPlayerCharacter::IsDead() {
 	return CurrentHealth <= 0;
 }
 
-void AZCPlayerCharacter::ChangeWeaponProperty(const FZCWeaponDefinitionRow& Values)
+void AZCPlayerCharacter::ChangeWeaponProperty(const FZCWeaponComputedStats& Values)
 {
 	if (!IsValid(CurrentWeapon)) return;
 	CurrentWeapon->UpdateProperty(Values);
@@ -211,7 +212,6 @@ void AZCPlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, RotateRateY, 0.0f);
 	Weapons.Reset();
-	ApplyNewWeapon();
 }
 
 void AZCPlayerCharacter::Move(const FInputActionValue& Value)
@@ -333,15 +333,20 @@ void AZCPlayerCharacter::TogglePause()
 
 void AZCPlayerCharacter::ApplyNewWeapon()
 {
-	if (!IsValid(WeaponDefinitionTable) || !Weapons.IsValidIndex(CurrentWeaponIndex)) {
+	if (!Weapons.IsValidIndex(CurrentWeaponIndex)) {
 		UE_LOG(LogTemp, Warning, TEXT("Update Fail"));
 		return;
 	}
 
 	FName CurrentWeaponName = Weapons[CurrentWeaponIndex];
-	const FZCWeaponDefinitionRow* Row = WeaponDefinitionTable->FindRow<FZCWeaponDefinitionRow>(
-		CurrentWeaponName, TEXT("ApplyCurrentWeaponVisual")
+	AZCGameMode* GameMode = Cast<AZCGameMode>(
+		UGameplayStatics::GetGameMode(this)
 	);
+	checkf(IsValid(GameMode), TEXT("Invalid Game Mode!"));
+
+
+	const FZCWeaponComputedStats* Row = (GameMode->GetPlayerProgressionComponent()
+		->GetWeaponStates()).Find(CurrentWeaponName);
 
 	if (!Row || !Row->VisualClass) {
 		UE_LOG(
@@ -355,7 +360,7 @@ void AZCPlayerCharacter::ApplyNewWeapon()
 	
 	if (!WeaponCurrentAmmo.Contains(CurrentWeaponName)) {
 		WeaponCurrentAmmo.Add(CurrentWeaponName, 
-			TPair<bool, int32>(Row->bUseAmmo, Row->BaseMagazineSize));
+			TPair<bool, int32>(Row->bUseAmmo, Row->MagazineSize));
 	}
 
 	FActorSpawnParameters SpawnParams;

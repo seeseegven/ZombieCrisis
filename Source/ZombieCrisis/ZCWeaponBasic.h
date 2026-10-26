@@ -6,7 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "ZCWeaponBasic.generated.h"
 
-struct FZCWeaponDefinitionRow;
+struct FZCWeaponComputedStats;
 class UNiagaraSystem;
 
 UCLASS(Abstract)
@@ -17,7 +17,7 @@ class ZOMBIECRISIS_API AZCWeaponBasic : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AZCWeaponBasic();
-	virtual void UpdateProperty(const FZCWeaponDefinitionRow& Value) {};
+	virtual void UpdateProperty(const FZCWeaponComputedStats& Value) {};
 	virtual bool WeaponApply() { return false; };
 protected:
 	// Called when the game starts or when spawned

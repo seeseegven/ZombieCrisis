@@ -28,6 +28,8 @@ public:
 	}
 
 	void ApplyNewLevelRewards();
+
+	const TMap<FName, FZCWeaponComputedStats>& GetWeaponStates() const;
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

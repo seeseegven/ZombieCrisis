@@ -11,7 +11,7 @@ class UInputAction;
 class UInputMappingContext;
 class UZCDeathAnimationComponent;
 struct FInputActionValue;
-struct FZCWeaponDefinitionRow;
+struct FZCWeaponComputedStats;
 class AZCWeaponBasic;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
@@ -112,9 +112,6 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere, Category = "ZC|Weapon")
-	TObjectPtr<UDataTable> WeaponDefinitionTable;
-
 	TArray<FName> Weapons;
 
 	UFUNCTION(BlueprintImplementableEvent)
@@ -127,7 +124,7 @@ private:
 	void TogglePause();
 	void ApplyNewWeapon();
 	bool IsDead();
-	void ChangeWeaponProperty(const FZCWeaponDefinitionRow& Values);
+	void ChangeWeaponProperty(const FZCWeaponComputedStats& Values);
 	bool bIsDead = false;
 	float NextPistolFireTime = 0.0f;
 	int32 CurrentWeaponIndex = 0;

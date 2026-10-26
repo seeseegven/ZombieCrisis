@@ -37,6 +37,8 @@ public:
 	void HandleReturnMainMenu();
 
 	void UnlockWeapon();
+
+	const TObjectPtr<UZCPlayerProgressionComponent> GetPlayerProgressionComponent() const;
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Score")
 	int32 ZombieKilledScore = 100;
@@ -64,6 +66,5 @@ private:
 	//运行时的玩家升级增益
 	UPROPERTY(VisibleAnywhere, Category = "ZC|Progression")
 	TObjectPtr<UZCPlayerProgressionComponent> PlayerProgression = nullptr;
-
 
 };

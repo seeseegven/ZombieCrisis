@@ -125,17 +125,17 @@ bool AZCWeaponGun::WeaponApply()
 	return true;
 }
 
-void AZCWeaponGun::UpdateProperty(const FZCWeaponDefinitionRow& Value)
+void AZCWeaponGun::UpdateProperty(const FZCWeaponComputedStats& Value)
 {
-	WeaponDamage = Value.BaseDamage;
-	ShotInterval = FMath::Max(0.02f, 1.0 / Value.BaseFireRate);
-	WeaponCapacity = Value.BaseMagazineSize;
-	DamageRange = Value.BaseRange;
-	BulletDegrees = Value.BaseSpreadDegrees;
+	WeaponDamage = Value.Damage;
+	ShotInterval = FMath::Max(0.02f, 1.0 / Value.FireRate);
+	WeaponCapacity = Value.MagazineSize;
+	DamageRange = Value.Range;
+	BulletDegrees = Value.SpreadDegrees;
 	NextPistolFireTime = 0.0f;
 	MuzzleFlashSystem = Value.MuzzleFlashSystem;
 	WeaponEffectSystem = Value.WeaponEffectSystem;
-	TraceCount = Value.BaseTraceCount;
+	TraceCount = Value.TraceCount;
 	StartDegreeOffset = Value.StartDegreeOffset;
 	bUseAmmo = Value.bUseAmmo;
 }

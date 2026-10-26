@@ -174,6 +174,11 @@ void AZCGameMode::UnlockWeapon()
 	}
 }
 
+const TObjectPtr<UZCPlayerProgressionComponent> AZCGameMode::GetPlayerProgressionComponent() const
+{
+	return PlayerProgression;
+}
+
 int32 AZCGameMode::ManageSpawningCount()
 {
 	return Wave*2;
