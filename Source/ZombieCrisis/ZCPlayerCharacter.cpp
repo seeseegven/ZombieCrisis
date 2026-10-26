@@ -53,6 +53,54 @@ void AZCPlayerCharacter::AddNewWeapon(const FName& NewWeapon)
 	ApplyNewWeapon();
 }
 
+/**
+ * 收到 GameMode 通知后，从成长组件重新读取该武器的最终配置。
+ * WeaponName：本次强化的武器行名；bRefillAmmo：true 补到新数量，false 不改变剩余子弹。
+ * 返回值：无。非当前武器只更新库存，等装备时再读取属性；当前武器直接刷新已有实例。
+ */
+void AZCPlayerCharacter::RefreshWeaponProperties(const FName& WeaponName, bool bRefillAmmo)
+{
+	AZCGameMode* GameMode = Cast<AZCGameMode>(UGameplayStatics::GetGameMode(this));
+	if (!IsValid(GameMode)) return;
+	const UZCPlayerProgressionComponent* Progression = GameMode->GetPlayerProgressionComponent();
+	if (!IsValid(Progression)) return;
+	const FZCWeaponComputedStats* Computed = Progression->GetWeaponStates().Find(WeaponName);
+	if (!Computed) return;
+
+	if (bRefillAmmo && Computed->bUseAmmo)
+	{
+		// 已装备过的武器覆盖为新配置数量；尚未装备的武器仍在首次装备时建立记录。
+		if (TPair<bool, int32>* Ammo = WeaponCurrentAmmo.Find(WeaponName))
+		{
+			Ammo->Value = Computed->MagazineSize;
+		}
+	}
+
+	if (!Weapons.IsValidIndex(CurrentWeaponIndex) || Weapons[CurrentWeaponIndex] != WeaponName) return;
+	ChangeWeaponProperty(*Computed);
+	if (const TPair<bool, int32>* Ammo = WeaponCurrentAmmo.Find(WeaponName))
+	{
+		// 在库存更新后广播，保证当前武器的弹药界面显示最新值。
+		OnWeaponChanged.Broadcast(FText::FromName(WeaponName), Ammo->Key, Ammo->Value);
+	}
+}
+
+/**
+ * 应用 GameMode 转交的生命奖励。
+ * NewMaxHealth：奖励表 Value 指定的新上限；返回值：无，更新生命和血条事件。
+ * 例如原来 40/100、新上限 150，结果为 40 + (150 - 100) * 0.6 = 70/150。
+ */
+void AZCPlayerCharacter::ApplyMaxHealthUpgrade(float NewMaxHealth)
+{
+	if (bIsDead || NewMaxHealth <= 0.0f) return;
+	const float OldMaxHealth = MaxHealth;
+	MaxHealth = NewMaxHealth;
+	// UE Clamp 将回血后的结果限制在 0 到新上限；生命继续使用 float，不丢弃小数。
+	CurrentHealth = FMath::Clamp(CurrentHealth + (MaxHealth - OldMaxHealth) * 0.6f, 0.0f, MaxHealth);
+	BloodPercent = CurrentHealth / MaxHealth;
+	OnHealthChanged.Broadcast(BloodPercent);
+}
+
 // Called to bind functionality to input
 void AZCPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {

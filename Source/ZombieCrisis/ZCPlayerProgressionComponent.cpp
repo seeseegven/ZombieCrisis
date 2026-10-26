@@ -153,30 +153,56 @@ void UZCPlayerProgressionComponent::ApplyNewLevelRewards()
 	if (!Reward) return;
 
 	auto Type = Reward->UpgradeType;
+	AZCGameMode* GameMode = Cast<AZCGameMode>(GetOwner());
+	checkf(IsValid(GameMode), TEXT("Invalid GameMode Parent!"));
 	switch (Type)
 	{
 	case EZCPlayerUpgradeType::None:
 		break;
 	case EZCPlayerUpgradeType::MaxHealthUp:
+		GameMode->UpgradePlayerMaxHealth(Reward->Value);
 		break;
 	case EZCPlayerUpgradeType::Unlock: {
-		AZCGameMode* GameMode = Cast<AZCGameMode>(GetOwner());
-		checkf(IsValid(GameMode), TEXT("Invalid GameMode Parent!"));
 		GameMode->UnlockWeapon();
 		break;
 	}
 	case EZCPlayerUpgradeType::DamageMultiplier:
-		break;
 	case EZCPlayerUpgradeType::FireRateMultiplier:
-		break;
 	case EZCPlayerUpgradeType::AmmoMultiplier:
-		break;
 	case EZCPlayerUpgradeType::RangeMultiplier:
-		break;
 	case EZCPlayerUpgradeType::SpreadMultiplier:
-		break;
 	case EZCPlayerUpgradeType::ExplosionRadiusMultiplier:
+	{
+		// GameMode 负责总数组和索引，组件只修改自己保存的最终属性。
+		const FName WeaponName = GameMode->GetNextUpgradeWeapon(Type);
+		FZCWeaponComputedStats* Computed = WeaponStates.Find(WeaponName);
+		if (!Computed) break;
+
+		// Value 是本次乘数；循环回同一武器时，在已经强化的数值上继续相乘。
+		switch (Type)
+		{
+		case EZCPlayerUpgradeType::DamageMultiplier: Computed->Damage *= Reward->Value; break;
+		case EZCPlayerUpgradeType::FireRateMultiplier: Computed->FireRate *= Reward->Value; break;
+		case EZCPlayerUpgradeType::AmmoMultiplier:
+			// 数量仍是整数；UE RoundToInt 将倍率计算后的结果四舍五入。
+			Computed->MagazineSize = FMath::RoundToInt(Computed->MagazineSize * Reward->Value);
+			break;
+		case EZCPlayerUpgradeType::RangeMultiplier: Computed->Range *= Reward->Value; break;
+		case EZCPlayerUpgradeType::SpreadMultiplier:
+			Computed->SpreadDegrees *= Reward->Value;
+			// 同比例调整起始偏角，保持原来弹道排列的相对形状。
+			Computed->StartDegreeOffset *= Reward->Value;
+			break;
+		case EZCPlayerUpgradeType::ExplosionRadiusMultiplier:
+			Computed->ExplosionRadius *= Reward->Value;
+			break;
+		default: break;
+		}
+
+		// 每次成功更新后都通知；只有弹量奖励会让玩家补满对应武器。
+		GameMode->NotifyWeaponPropertiesChanged(WeaponName, Type == EZCPlayerUpgradeType::AmmoMultiplier);
 		break;
+	}
 	default:
 		break;
 	}

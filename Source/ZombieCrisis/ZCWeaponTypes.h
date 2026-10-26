@@ -35,8 +35,8 @@ enum class EZCExplosiveTriggerType : uint8
 /**
  * 一条等级奖励会对武器产生哪种影响。
  *
- * Multiplier 类型保存的是“强化后的目标倍率”，而不是在旧值上继续相乘。
- * 例如双倍弹容量写 2.0，四倍弹容量写 4.0，避免最终错误地叠成八倍。
+ * Multiplier 类型保存本次奖励的乘数，直接作用于 Computed 的当前最终值。
+ * 同一武器先后获得两次 2.0 时，最终是基础值的四倍；不另存累计倍率。
  */
 UENUM(BlueprintType)
 enum class EZCPlayerUpgradeType : uint8
@@ -198,7 +198,7 @@ struct FZCLevelRewardRow : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Progression")
 	EZCPlayerUpgradeType UpgradeType = EZCPlayerUpgradeType::Unlock;
 
-	/** 强化后的目标倍率；Unlock 类型忽略该值。 */
+	/** Multiplier：本次乘数；MaxHealthUp：新生命上限；Unlock/None：忽略该值。 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Progression", meta = (ClampMin = "0.0"))
 	float Value = 1.0f;
 

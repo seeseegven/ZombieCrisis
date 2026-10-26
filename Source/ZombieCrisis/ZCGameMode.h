@@ -12,6 +12,7 @@
 
 class AZCZombieSpawner;
 class UZCPlayerProgressionComponent;
+enum class EZCPlayerUpgradeType : uint8;
 
 UCLASS()
 class ZOMBIECRISIS_API AZCGameMode : public AGameModeBase
@@ -38,6 +39,15 @@ public:
 
 	void UnlockWeapon();
 
+	// 按升级类型选择下一把适用武器并循环推进该类型索引；无适用项返回 NAME_None。
+	FName GetNextUpgradeWeapon(EZCPlayerUpgradeType Type);
+
+	// 组件修改 Computed 后经此通知玩家；true 仅表示本次弹量奖励需要补满数量。
+	void NotifyWeaponPropertiesChanged(const FName& WeaponName, bool bRefillAmmo);
+
+	// NewMaxHealth 是奖励表给出的新生命上限，由玩家处理自己的剩余生命和血条。
+	void UpgradePlayerMaxHealth(float NewMaxHealth);
+
 	const TObjectPtr<UZCPlayerProgressionComponent> GetPlayerProgressionComponent() const;
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Score")
@@ -62,6 +72,7 @@ private:
 	int32 AmmoCapacityIndex = 0;
 	int32 DamageRangeIndex = 0;
 	int32 SpreadMultiplierIndex = 0;
+	int32 ExplosionRadiusIndex = 0;
 
 	//运行时的玩家升级增益
 	UPROPERTY(VisibleAnywhere, Category = "ZC|Progression")

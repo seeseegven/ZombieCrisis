@@ -50,6 +50,12 @@ public:
 
 	void AddNewWeapon(const FName& NewWeapon);
 
+	// GameMode 通知后按 WeaponName 重读 Computed；仅 bRefillAmmo 为 true 时补满该武器。
+	void RefreshWeaponProperties(const FName& WeaponName, bool bRefillAmmo);
+
+	// NewMaxHealth 为新上限；当前生命增加上限增加量的 60%，并通知血条。
+	void ApplyMaxHealthUpgrade(float NewMaxHealth);
+
 protected:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

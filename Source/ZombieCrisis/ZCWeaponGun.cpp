@@ -132,7 +132,8 @@ void AZCWeaponGun::UpdateProperty(const FZCWeaponComputedStats& Value)
 	WeaponCapacity = Value.MagazineSize;
 	DamageRange = Value.Range;
 	BulletDegrees = Value.SpreadDegrees;
-	NextPistolFireTime = 0.0f;
+	// 已开始的射击冷却继续保留；新武器的初值已在基类中设为 0。
+	// 因此强化刷新不会额外获得一次立即开火机会。
 	MuzzleFlashSystem = Value.MuzzleFlashSystem;
 	WeaponEffectSystem = Value.WeaponEffectSystem;
 	TraceCount = Value.TraceCount;
