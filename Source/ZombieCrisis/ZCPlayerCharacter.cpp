@@ -46,6 +46,12 @@ AZCPlayerCharacter::AZCPlayerCharacter()
 }
 
 
+void AZCPlayerCharacter::AddNewWeapon(const FName& NewWeapon)
+{
+	Weapons.Add(NewWeapon);
+	ApplyNewWeapon();
+}
+
 // Called to bind functionality to input
 void AZCPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -204,6 +210,7 @@ void AZCPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, RotateRateY, 0.0f);
+	Weapons.Reset();
 	ApplyNewWeapon();
 }
 
@@ -227,8 +234,14 @@ void AZCPlayerCharacter::FireWeapon()
 		return;
 	}
 	FName CurrentWeaponName = Weapons[CurrentWeaponIndex];
-	if (!WeaponCurrentAmmo.Find(CurrentWeaponName)) return;
-
+	if (!WeaponCurrentAmmo.Find(CurrentWeaponName)) {
+		UE_LOG(
+			LogTemp,
+			Warning,
+			TEXT("Weapon not found!")
+		);
+		return;
+	}
 	if (WeaponCurrentAmmo[CurrentWeaponName].Key) {
 		if (WeaponCurrentAmmo[CurrentWeaponName].Value <= 0) return;
 		if (CurrentWeapon->WeaponApply()) {
@@ -243,7 +256,7 @@ void AZCPlayerCharacter::FireWeapon()
 	else {
 		CurrentWeapon->WeaponApply();
 	}
-
+	/*
 	UE_LOG(
 		LogTemp,
 		Warning,
@@ -251,7 +264,7 @@ void AZCPlayerCharacter::FireWeapon()
 		WeaponCurrentAmmo[CurrentWeaponName].Value
 	);
 	//UE_LOG(LogTemp, Warning, TEXT("开始射击"));
-	
+	*/
 }
 
 void AZCPlayerCharacter::ChangeWeapons(const FInputActionValue& Value)

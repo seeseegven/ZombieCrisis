@@ -8,10 +8,15 @@
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "ZCZombieSpawner.h"
+#include "ZCPlayerProgressionComponent.h"
+#include "ZCPlayerCharacter.h"
 
 AZCGameMode::AZCGameMode()
 {
 	GameStateClass = AZCGameState::StaticClass();
+	PlayerProgression = CreateDefaultSubobject<UZCPlayerProgressionComponent>(
+		FName("WeaponProgression")
+	);
 }
 
 void AZCGameMode::HandleEnemyKilled(AActor* KilledEnemy, AController* KillerController)
@@ -31,6 +36,16 @@ void AZCGameMode::HandleEnemyKilled(AActor* KilledEnemy, AController* KillerCont
 	ZCGameState->AddScore(ZombieKilledScore);
 	CurrentAliveZombie--;
 	if (CurrentAliveZombie <= 0) {
+		if (IsValid(PlayerProgression)) {
+			int32 CurrentLevel = PlayerProgression->GetPlayerLevel();
+			PlayerProgression->ApplyNewLevelRewards();
+			UE_LOG(
+				LogTemp,
+				Display,
+				TEXT("Wave cleared. Player level: %d"),
+				PlayerProgression->GetPlayerLevel()
+			);
+		}
 		Wave++;
 		UE_LOG(
 			LogTemp,
@@ -45,8 +60,6 @@ void AZCGameMode::HandleEnemyKilled(AActor* KilledEnemy, AController* KillerCont
 			5.0f,
 			false
 			);
-		
-		
 	}
 	UE_LOG(
 		LogTemp,
@@ -79,6 +92,11 @@ void AZCGameMode::StartPlay()
 	Super::StartPlay();
 
 	Wave = 1;
+	checkf(
+		IsValid(PlayerProgression),
+		TEXT("Invalid Component!")
+	);
+	PlayerProgression->ApplyNewLevelRewards();
 	ZombieSpawners.Reset();
 
 	TArray<AActor*> SpawnersInMap;
@@ -143,6 +161,19 @@ void AZCGameMode::HandleReturnMainMenu()
 	);
 }
 
+void AZCGameMode::UnlockWeapon()
+{
+	AZCPlayerCharacter* Player = Cast<AZCPlayerCharacter>(
+		UGameplayStatics::GetPlayerCharacter(this, 0)
+	);
+	if (IsValid(Player)) {
+		if (UnlockIndex < Weapons.Num()) {
+			Player->AddNewWeapon(Weapons[UnlockIndex]);
+			UnlockIndex++;
+		}
+	}
+}
+
 int32 AZCGameMode::ManageSpawningCount()
 {
 	return Wave*2;
@@ -161,3 +192,5 @@ void AZCGameMode::SpawningEachWave()
 	}
 	BP_DisplayCurrentWave(Wave);
 }
+
+

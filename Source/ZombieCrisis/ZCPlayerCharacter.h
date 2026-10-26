@@ -48,6 +48,8 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "ZC|Weapon")
 	FOnWeaponChangedSignature OnWeaponChanged;
 
+	void AddNewWeapon(const FName& NewWeapon);
+
 protected:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -113,7 +115,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "ZC|Weapon")
 	TObjectPtr<UDataTable> WeaponDefinitionTable;
 
-	UPROPERTY(EditAnywhere, Category = "ZC|Weapon")
 	TArray<FName> Weapons;
 
 	UFUNCTION(BlueprintImplementableEvent)
